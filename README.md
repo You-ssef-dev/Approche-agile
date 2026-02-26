@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://readme-typing-svg.herokuapp.com?color=blue&size=25&center=true&vCenter=true&width=600&lines=Approche+Agile;Scrum+%7C+XP+%7C+Product+Backlog;Agile+Mindset" />
 </p>
-
+<h1 align="center">📘Approche Agile</h1>
 <p align="center">
   <img src="https://img.shields.io/badge/Methodology-Agile-blue" />
   <img src="https://img.shields.io/badge/Framework-Scrum-purple" />
