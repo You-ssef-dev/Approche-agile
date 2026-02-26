@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?color=blue&size=25&center=true&vCenter=true&width=600&lines=Approche+Agile;Scrum+%7C+XP+%7C+Product+Backlog;Agile+Mindset" />
+</p>
+
 <h1 align="center">📘Approche Agile</h1>
 
 <p align="center">
@@ -5,10 +9,6 @@
   <img src="https://img.shields.io/badge/Framework-Scrum-purple" />
   <img src="https://img.shields.io/badge/Level-OFPPT-success" />
   <img src="https://img.shields.io/badge/Status-Completed-brightgreen" />
-</p>
-
-<p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?color=blue&size=25&center=true&vCenter=true&width=600&lines=EFM+Approche+Agile;Scrum+%7C+XP+%7C+Product+Backlog;Agile+Mindset" />
 </p>
 
 ---
