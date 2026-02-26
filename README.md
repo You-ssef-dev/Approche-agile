@@ -1,6 +1,9 @@
-<h1 align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?color=blue&size=25&center=true&vCenter=true&width=600&lines=Approche+Agile;Scrum+%7C+XP+%7C+Product+Backlog;Agile+Mindset" />
-</h1>
+<p align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=28&duration=3000&pause=800&color=2563EB&center=true&vCenter=true&width=750&lines=📘+EFM+-+Approche+Agile;⚡+Scrum+%7C+XP+%7C+Kanban;📋+Product+Backlog+%26+User+Stories;🚀+Agile+Mindset" />
+</p>
+
+<h1 align="center">📘Approche Agile</h1>
+
 <p align="center">
   <img src="https://img.shields.io/badge/Methodology-Agile-blue" />
   <img src="https://img.shields.io/badge/Framework-Scrum-purple" />
