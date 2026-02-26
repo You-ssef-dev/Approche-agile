@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git, GitLab & SonarQube — Gestion de Version & Qualité du Code</title>
+    <meta name="description"
+        content="Chapitre 5 : Git, GitLab, Branches, Merge, SonarQube — Gestion de versions et qualité du code.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --bg: #0a0e1a;
+            --surface: #111827;
+            --card: #1a2236;
+            --card-hover: #1e2a42;
+            --border: #2a3550;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, .15);
+            --green: #10b981;
+            --green-bg: rgba(16, 185, 129, .1);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, .1);
+            --yellow: #f59e0b;
+            --yellow-bg: rgba(245, 158, 11, .1);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59, 130, 246, .1);
+            --purple: #a855f7;
+            --purple-bg: rgba(168, 85, 247, .1);
+            --cyan: #06b6d4;
+            --cyan-bg: rgba(6, 182, 212, .1);
+            --orange: #f97316;
+            --orange-bg: rgba(249, 115, 22, .1);
+            --radius: 12px;
+            --transition: .3s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden
+        }
+
+        a {
+            color: var(--accent-light);
+            text-decoration: none
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent)
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 14, 26, .85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px
+        }
+
+        .nav-logo {
+            font-weight: 800;
+            font-size: 1.15rem;
+            background: linear-gradient(135deg, var(--accent-light), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            font-size: .85rem;
+            font-weight: 500;
+            transition: color var(--transition)
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-light)
+        }
+
+        .nav-select {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .15), rgba(168, 85, 247, .15));
+            color: var(--accent-light);
+            border: 1px solid rgba(99, 102, 241, .35);
+            border-radius: 8px;
+            padding: .4rem .8rem .4rem .6rem;
+            font-family: 'Inter', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all .3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23818cf8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .6rem center;
+            padding-right: 1.8rem
+        }
+
+        .nav-select:hover {
+            border-color: var(--accent-light);
+            background: linear-gradient(135deg, rgba(99, 102, 241, .25), rgba(168, 85, 247, .25))
+        }
+
+        .nav-select option {
+            background: var(--surface);
+            color: var(--text);
+            padding: .5rem
+        }
+
+        .hero {
+            padding: 10rem 2rem 5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(249, 115, 22, .12) 0%, transparent 70%);
+            pointer-events: none
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: .4rem 1rem;
+            border-radius: 50px;
+            background: var(--orange-bg);
+            border: 1px solid rgba(249, 115, 22, .3);
+            color: var(--orange);
+            font-size: .8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 1rem
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .hero p {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 2rem
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem
+        }
+
+        section {
+            padding: 4rem 0
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .35rem .9rem;
+            border-radius: 50px;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 1rem
+        }
+
+        .label-blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+            border: 1px solid rgba(59, 130, 246, .25)
+        }
+
+        .label-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid rgba(16, 185, 129, .25)
+        }
+
+        .label-purple {
+            background: var(--purple-bg);
+            color: var(--purple);
+            border: 1px solid rgba(168, 85, 247, .25)
+        }
+
+        .label-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+            border: 1px solid rgba(245, 158, 11, .25)
+        }
+
+        .label-red {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, .25)
+        }
+
+        .label-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan);
+            border: 1px solid rgba(6, 182, 212, .25)
+        }
+
+        .label-orange {
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid rgba(249, 115, 22, .25)
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: .5rem
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+            max-width: 700px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            transition: all var(--transition)
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, .08)
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: .6rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .card p,
+        .card li {
+            color: var(--text-muted);
+            font-size: .92rem
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0
+        }
+
+        .card ul li {
+            padding: .3rem 0;
+            padding-left: 1.4rem;
+            position: relative
+        }
+
+        .card ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent-light)
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem
+        }
+
+        .icon-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0
+        }
+
+        .ic-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .ic-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .ic-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .ic-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .ic-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .ic-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .ic-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .tag {
+            display: inline-block;
+            padding: .25rem .7rem;
+            border-radius: 6px;
+            font-size: .78rem;
+            font-weight: 600
+        }
+
+        .tag-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .tag-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .tag-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .tag-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .tag-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .tag-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .tag-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .callout {
+            border-left: 3px solid var(--accent);
+            background: var(--accent-glow);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            margin: 1.5rem 0;
+            font-size: .92rem
+        }
+
+        .callout-green {
+            border-left-color: var(--green);
+            background: var(--green-bg)
+        }
+
+        .callout-yellow {
+            border-left-color: var(--yellow);
+            background: var(--yellow-bg)
+        }
+
+        .callout-red {
+            border-left-color: var(--red);
+            background: var(--red-bg)
+        }
+
+        .callout-blue {
+            border-left-color: var(--blue);
+            background: var(--blue-bg)
+        }
+
+        .callout-purple {
+            border-left-color: var(--purple);
+            background: var(--purple-bg)
+        }
+
+        .callout-orange {
+            border-left-color: var(--orange);
+            background: var(--orange-bg)
+        }
+
+        code,
+        .cmd {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(99, 102, 241, .12);
+            color: var(--accent-light);
+            padding: .15rem .5rem;
+            border-radius: 5px;
+            font-size: .82rem;
+            font-weight: 600
+        }
+
+        .cmd-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .82rem;
+            color: var(--green);
+            margin: .8rem 0;
+            overflow-x: auto;
+            line-height: 1.8
+        }
+
+        .cmd-block .comment {
+            color: var(--text-dim)
+        }
+
+        .styled-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border)
+        }
+
+        .styled-table thead {
+            background: linear-gradient(135deg, var(--orange), #ea580c)
+        }
+
+        .styled-table th {
+            padding: .9rem 1.2rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: .85rem;
+            color: #fff;
+            letter-spacing: .5px
+        }
+
+        .styled-table td {
+            padding: .8rem 1.2rem;
+            font-size: .85rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none
+        }
+
+        .styled-table tbody tr {
+            background: var(--card);
+            transition: background var(--transition)
+        }
+
+        .styled-table tbody tr:hover {
+            background: var(--card-hover)
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            color: #fff;
+            font-size: .8rem;
+            font-weight: 800;
+            flex-shrink: 0
+        }
+
+        .part-divider {
+            text-align: center;
+            padding: 4rem 0 2rem;
+            position: relative
+        }
+
+        .part-divider::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(168, 85, 247, .1), transparent 70%);
+            pointer-events: none
+        }
+
+        .part-divider h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: .5rem
+        }
+
+        .part-divider p {
+            color: var(--text-muted)
+        }
+
+        .wf-step {
+            padding: .6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: .85rem
+        }
+
+        .wf-arrow {
+            color: var(--text-dim);
+            font-size: 1.3rem;
+            font-weight: 800
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: .85rem;
+            margin-top: 4rem
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 3rem
+            }
+
+            .section-title {
+                font-size: 1.5rem
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .6s ease, transform .6s ease
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-logo">📘 Gestion de Projet</div>
+            <ul class="nav-links">
+                <li><a href="1.%20Approche%20agile_Introduction.html">← Retour</a></li>
+                <li><a href="#vcs">VCS</a></li>
+                <li><a href="#git">Git</a></li>
+                <li><a href="#branches">Branches</a></li>
+                <li><a href="#gitlab">GitLab</a></li>
+                <li><a href="#sonarqube">SonarQube</a></li>
+                <li>
+                    <select class="nav-select" onchange="if(this.value)window.location.href=this.value">
+                        <option value="">📚 Chapitres</option>
+                        <option value="1.%20Approche%20agile_Introduction.html">📖 Introduction</option>
+                        <option value="2.%20Approche%20agile_Préparer%20un%20projet.html">📊 PERT & Gantt</option>
+                        <option value="3.%20Approche%20agile_SCRUM.html">🔄 Scrum</option>
+                        <option value="4.%20Approche%20agile_Manipuler%20JIRA.html">🔧 Jira</option>
+                        <option value="5.%20Approche%20Agile_gestion%20de%20version%20et%20qualité%20du%20code.html">🔀
+                            Git & SonarQube</option>
+                        <option value="6.%20Approche%20Agile_tests%20unitaires%20et%20couverture%20de%20code.html">🧪
+                            Tests Unitaires</option>
+                        <option value="7.%20Approche%20agile_DevOps.html">🔄 DevOps & CI/CD</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="hero-badge">📌 Chapitre 5 — Module Approche Agile</div>
+        <h1>Git, GitLab & <span>SonarQube</span></h1>
+        <p>Gestion de versions avec Git/GitLab et mesure de la qualité du code avec SonarQube.</p>
+        <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1rem">
+            <span class="tag tag-orange">🔀 Git</span>
+            <span class="tag tag-blue">🦊 GitLab</span>
+            <span class="tag tag-green">🌿 Branches</span>
+            <span class="tag tag-purple">🔍 SonarQube</span>
+            <span class="tag tag-cyan">📊 Métriques</span>
+        </div>
+    </header>
+
+    <!-- ══════════ PART 1: GIT & GITLAB ══════════ -->
+    <div class="part-divider fade-in">
+        <span class="tag tag-orange" style="font-size:.9rem;padding:.4rem 1rem;margin-bottom:.8rem">PARTIE 1 —
+            15h</span>
+        <h2 style="color:var(--orange)">🔀 Git & GitLab</h2>
+        <p>Gestion de versions distribuée et collaboration</p>
+    </div>
+
+    <!-- 1. VERSION CONTROL -->
+    <section id="vcs">
+        <div class="container fade-in">
+            <span class="section-label label-orange">📌 Section 1</span>
+            <h2 class="section-title">📂 Gestion de Versions (VCS)</h2>
+            <p class="section-desc">Stocker, suivre et restaurer les différentes versions d'un projet.</p>
+            <div class="grid-3">
+                <div class="card" style="border-top:3px solid var(--blue)">
+                    <h3><span class="icon-circle ic-blue">💻</span> Local</h3>
+                    <p>Copies locales des fichiers. Simple mais risqué (pas de partage).</p>
+                </div>
+                <div class="card" style="border-top:3px solid var(--yellow)">
+                    <h3><span class="icon-circle ic-yellow">🖥️</span> Centralisé (SVN)</h3>
+                    <p>Un serveur central stocke le dépôt. Nécessite une connexion réseau.</p>
+                </div>
+                <div class="card" style="border-top:3px solid var(--green)">
+                    <h3><span class="icon-circle ic-green">🌐</span> Distribué (Git)</h3>
+                    <p>Chaque développeur possède une <strong>copie complète</strong> du projet. Travail hors ligne
+                        possible.</p>
+                </div>
+            </div>
+            <div class="callout callout-orange fade-in" style="margin-top:1.5rem">
+                💡 Autres outils : <strong>CVS</strong>, <strong>SVN</strong>, <strong>Mercurial</strong>,
+                <strong>TFS</strong> (Microsoft). Git est devenu le <strong>quasi-standard</strong>.
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. GIT -->
+    <section id="git">
+        <div class="container fade-in">
+            <span class="section-label label-green">📌 Section 2</span>
+            <h2 class="section-title">🔀 Présentation de Git</h2>
+            <p class="section-desc">Logiciel libre de gestion de versions distribué, multi-langages et
+                multi-plateformes.</p>
+            <div class="grid-4" style="margin-bottom:1.5rem">
+                <div class="card" style="text-align:center;border-top:3px solid var(--green)">
+                    <span style="font-size:1.5rem">📦</span>
+                    <h3 style="justify-content:center;font-size:.95rem">Repository</h3>
+                    <p style="font-size:.82rem">Historique complet du projet</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--blue)">
+                    <span style="font-size:1.5rem">💾</span>
+                    <h3 style="justify-content:center;font-size:.95rem">Commit</h3>
+                    <p style="font-size:.82rem">Version sauvegardée</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--purple)">
+                    <span style="font-size:1.5rem">🌿</span>
+                    <h3 style="justify-content:center;font-size:.95rem">Branch</h3>
+                    <p style="font-size:.82rem">Variante du projet</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--orange)">
+                    <span style="font-size:1.5rem">👆</span>
+                    <h3 style="justify-content:center;font-size:.95rem">HEAD</h3>
+                    <p style="font-size:.82rem">Pointeur branche courante</p>
+                </div>
+            </div>
+
+            <!-- Git Workflow -->
+            <div class="card" style="border-left:3px solid var(--green)">
+                <h3><span class="icon-circle ic-green">🔄</span> Git Workflow — 3 Zones</h3>
+                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:.8rem 0">
+                    <div class="wf-step" style="background:var(--blue-bg);color:var(--blue)">📁 Working Directory</div>
+                    <div style="text-align:center">
+                        <div class="wf-arrow">→</div><code style="font-size:.7rem">git add</code>
+                    </div>
+                    <div class="wf-step" style="background:var(--yellow-bg);color:var(--yellow)">📋 Index (Staging)
+                    </div>
+                    <div style="text-align:center">
+                        <div class="wf-arrow">→</div><code style="font-size:.7rem">git commit</code>
+                    </div>
+                    <div class="wf-step" style="background:var(--green-bg);color:var(--green)">✅ HEAD</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. GIT COMMANDS -->
+    <section id="commands">
+        <div class="container fade-in">
+            <span class="section-label label-blue">📌 Section 3</span>
+            <h2 class="section-title">⌨️ Commandes Git Principales</h2>
+            <p class="section-desc">Les commandes essentielles pour travailler avec Git.</p>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Commande</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>git init</code></td>
+                        <td>Créer un nouveau dépôt vide</td>
+                    </tr>
+                    <tr>
+                        <td><code>git status</code></td>
+                        <td>Afficher les différences entre les zones</td>
+                    </tr>
+                    <tr>
+                        <td><code>git add</code></td>
+                        <td>Ajouter des fichiers à l'index (staging)</td>
+                    </tr>
+                    <tr>
+                        <td><code>git commit -m "msg"</code></td>
+                        <td>Sauvegarder une version dans HEAD</td>
+                    </tr>
+                    <tr>
+                        <td><code>git log</code></td>
+                        <td>Afficher l'historique des commits</td>
+                    </tr>
+                    <tr>
+                        <td><code>git clone</code></td>
+                        <td>Cloner un dépôt existant (local ou distant)</td>
+                    </tr>
+                    <tr>
+                        <td><code>git pull</code></td>
+                        <td>Récupérer les modifications depuis un dépôt distant</td>
+                    </tr>
+                    <tr>
+                        <td><code>git push</code></td>
+                        <td>Publier les modifications vers un dépôt distant</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="card fade-in" style="margin-top:1.5rem;border-left:3px solid var(--cyan)">
+                <h3><span class="icon-circle ic-cyan">📝</span> Exemple pratique</h3>
+                <div class="cmd-block">
+                    <span class="comment"># 1. Initialiser un projet</span>
+                    mkdir mon_projet && cd mon_projet
+                    git init
+
+                    <span class="comment"># 2. Créer et ajouter un fichier</span>
+                    echo "Bonjour" > file.txt
+                    git add file.txt
+
+                    <span class="comment"># 3. Valider le changement</span>
+                    git commit -m "Premier commit"
+
+                    <span class="comment"># 4. Voir l'historique</span>
+                    git log --oneline
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. BRANCHES -->
+    <section id="branches">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 4</span>
+            <h2 class="section-title">🌿 Gestion des Branches</h2>
+            <p class="section-desc">Développer des fonctionnalités isolées et les fusionner ensuite.</p>
+
+            <!-- Branch SVG -->
+            <div class="card" style="text-align:center;margin-bottom:1.5rem;padding:2rem">
+                <svg width="100%" height="160" viewBox="0 0 600 160" style="max-width:100%">
+                    <!-- master branch -->
+                    <line x1="50" y1="80" x2="550" y2="80" stroke="var(--green)" stroke-width="3" />
+                    <circle cx="100" cy="80" r="8" fill="var(--green)" />
+                    <circle cx="200" cy="80" r="8" fill="var(--green)" />
+                    <circle cx="350" cy="80" r="8" fill="var(--green)" />
+                    <circle cx="500" cy="80" r="8" fill="var(--green)" />
+                    <text x="100" y="110" text-anchor="middle" fill="var(--green)" font-size="10"
+                        font-weight="700">C1</text>
+                    <text x="500" y="110" text-anchor="middle" fill="var(--green)" font-size="10"
+                        font-weight="700">merge</text>
+                    <text x="550" y="75" fill="var(--green)" font-size="10" font-weight="700">master</text>
+                    <!-- testing branch -->
+                    <path d="M 200 80 Q 250 30 300 30" fill="none" stroke="var(--purple)" stroke-width="2.5" />
+                    <line x1="300" y1="30" x2="420" y2="30" stroke="var(--purple)" stroke-width="2.5" />
+                    <path d="M 420 30 Q 470 30 500 80" fill="none" stroke="var(--purple)" stroke-width="2.5"
+                        stroke-dasharray="5,3" />
+                    <circle cx="300" cy="30" r="7" fill="var(--purple)" />
+                    <circle cx="370" cy="30" r="7" fill="var(--purple)" />
+                    <circle cx="420" cy="30" r="7" fill="var(--purple)" />
+                    <text x="370" y="20" text-anchor="middle" fill="var(--purple)" font-size="10"
+                        font-weight="700">testing</text>
+                </svg>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3><span class="icon-circle ic-purple">🌿</span> Créer & Basculer</h3>
+                    <div class="cmd-block">
+                        <span class="comment"># Créer une branche</span>
+                        git branch testing
+
+                        <span class="comment"># Basculer vers la branche</span>
+                        git checkout testing
+                        git switch testing
+
+                        <span class="comment"># Créer + basculer en une commande</span>
+                        git checkout -b new-branch
+                        git switch -c new-branch
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-green">🔀</span> Fusionner (Merge)</h3>
+                    <div class="cmd-block">
+                        <span class="comment"># Revenir sur master</span>
+                        git checkout master
+
+                        <span class="comment"># Fusionner la branche</span>
+                        git merge testing
+
+                        <span class="comment"># Supprimer la branche</span>
+                        git branch -d testing
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conflicts -->
+            <div class="card fade-in" style="margin-top:1.5rem;border-left:3px solid var(--red)">
+                <h3><span class="icon-circle ic-red">⚠️</span> Résolution de Conflits</h3>
+                <p style="margin-bottom:.8rem">Un conflit survient quand <strong>deux branches modifient la même partie
+                        d'un fichier</strong>.</p>
+                <div class="grid-4" style="gap:.8rem">
+                    <div style="background:var(--red-bg);padding:.8rem;border-radius:8px;text-align:center">
+                        <span class="step-number"
+                            style="background:linear-gradient(135deg,var(--red),var(--orange));width:30px;height:30px;font-size:.8rem;margin-bottom:.3rem">1</span>
+                        <p style="font-size:.82rem;font-weight:600;color:var(--red)">Ouvrir le fichier</p>
+                    </div>
+                    <div style="background:var(--yellow-bg);padding:.8rem;border-radius:8px;text-align:center">
+                        <span class="step-number"
+                            style="background:linear-gradient(135deg,var(--yellow),var(--orange));width:30px;height:30px;font-size:.8rem;margin-bottom:.3rem">2</span>
+                        <p style="font-size:.82rem;font-weight:600;color:var(--yellow)">Éditer manuellement</p>
+                    </div>
+                    <div style="background:var(--blue-bg);padding:.8rem;border-radius:8px;text-align:center">
+                        <span class="step-number"
+                            style="background:linear-gradient(135deg,var(--blue),var(--cyan));width:30px;height:30px;font-size:.8rem;margin-bottom:.3rem">3</span>
+                        <p style="font-size:.82rem;font-weight:600;color:var(--blue)">git add fichier</p>
+                    </div>
+                    <div style="background:var(--green-bg);padding:.8rem;border-radius:8px;text-align:center">
+                        <span class="step-number"
+                            style="background:linear-gradient(135deg,var(--green),var(--cyan));width:30px;height:30px;font-size:.8rem;margin-bottom:.3rem">4</span>
+                        <p style="font-size:.82rem;font-weight:600;color:var(--green)">git commit</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. GITLAB -->
+    <section id="gitlab">
+        <div class="container fade-in">
+            <span class="section-label label-blue">📌 Section 5</span>
+            <h2 class="section-title">🦊 GitLab</h2>
+            <p class="section-desc">Plateforme web basée sur Git pour héberger des dépôts et gérer des projets.</p>
+            <div class="grid-3" style="margin-bottom:1.5rem">
+                <div class="card">
+                    <h3><span class="icon-circle ic-blue">📋</span> Issue Tracking</h3>
+                    <p>Suivi des problèmes et tâches du projet.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-green">🔀</span> Merge Requests</h3>
+                    <p>Demander la fusion d'une branche dans le projet principal.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-purple">🔄</span> CI/CD intégré</h3>
+                    <p>Intégration et déploiement continus directement dans GitLab.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-yellow">📖</span> Wiki</h3>
+                    <p>Documentation collaborative du projet.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-cyan">🔐</span> Permissions</h3>
+                    <p>Gestion fine des droits d'accès des membres.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-orange">🍴</span> Fork</h3>
+                    <p>Créer une copie personnelle d'un projet pour contribuer.</p>
+                </div>
+            </div>
+
+            <!-- Fork & Merge Request -->
+            <div class="card fade-in" style="border-left:3px solid var(--blue)">
+                <h3><span class="icon-circle ic-blue">🔀</span> Fork & Merge Request — Workflow</h3>
+                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:.8rem 0">
+                    <div class="wf-step" style="background:var(--orange-bg);color:var(--orange)">🍴 Fork</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--purple-bg);color:var(--purple)">🌿 Branch</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--blue-bg);color:var(--blue)">📤 Push</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--green-bg);color:var(--green)">🔀 Merge Request</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--cyan-bg);color:var(--cyan)">✅ Review & Merge</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. GITHUB vs GITLAB -->
+    <section id="comparison">
+        <div class="container fade-in">
+            <span class="section-label label-yellow">📌 Section 6</span>
+            <h2 class="section-title">⚖️ GitHub vs GitLab</h2>
+            <table class="styled-table" style="margin-bottom:1.5rem">
+                <thead>
+                    <tr>
+                        <th>Critère</th>
+                        <th>GitHub</th>
+                        <th>GitLab</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Base</td>
+                        <td>Git ✅</td>
+                        <td>Git ✅</td>
+                    </tr>
+                    <tr>
+                        <td>CI/CD</td>
+                        <td>GitHub Actions</td>
+                        <td><strong>CI/CD intégré natif</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Dépôts privés</td>
+                        <td>Limité (gratuit)</td>
+                        <td><strong>Gratuits illimités</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Self-hosting</td>
+                        <td>Enterprise uniquement</td>
+                        <td><strong>Oui (Community Edition)</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Wiki</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>Code Review</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>Interface</td>
+                        <td>Plus complexe</td>
+                        <td>Plus intégrée</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ══════════ PART 2: SONARQUBE ══════════ -->
+    <div class="part-divider fade-in">
+        <span class="tag tag-purple" style="font-size:.9rem;padding:.4rem 1rem;margin-bottom:.8rem">PARTIE 2 —
+            15h</span>
+        <h2 style="color:var(--purple)">🔍 Qualité du Code & SonarQube</h2>
+        <p>Métriques, analyse statique et dette technique</p>
+    </div>
+
+    <!-- 7. METRICS -->
+    <section id="metrics">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 7</span>
+            <h2 class="section-title">📐 Métriques du Code</h2>
+            <p class="section-desc">Mesures quantitatives pour évaluer la qualité d'un code source.</p>
+            <div class="grid-4">
+                <div class="card" style="text-align:center;border-top:3px solid var(--blue)"><span
+                        style="font-size:1.5rem">📏</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Lignes de code</h3>
+                    <p style="font-size:.8rem">Taille et volume du projet</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--purple)"><span
+                        style="font-size:1.5rem">🔄</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Complexité cyclomatique</h3>
+                    <p style="font-size:.8rem">Nombre de chemins d'exécution</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--yellow)"><span
+                        style="font-size:1.5rem">📋</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Duplication</h3>
+                    <p style="font-size:.8rem">Code copié/collé détecté</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--green)"><span
+                        style="font-size:1.5rem">✅</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Couverture de tests</h3>
+                    <p style="font-size:.8rem">% du code testé</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--red)"><span
+                        style="font-size:1.5rem">🔗</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Couplage</h3>
+                    <p style="font-size:.8rem">Dépendances entre modules</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--orange)"><span
+                        style="font-size:1.5rem">⏱️</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Dette technique</h3>
+                    <p style="font-size:.8rem">Effort pour corriger</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--cyan)"><span
+                        style="font-size:1.5rem">💬</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Densité commentaires</h3>
+                    <p style="font-size:.8rem">Ratio commentaires/code</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--accent)"><span
+                        style="font-size:1.5rem">🛡️</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Score sécurité</h3>
+                    <p style="font-size:.8rem">Vulnérabilités détectées</p>
+                </div>
+            </div>
+            <div class="grid-2 fade-in" style="margin-top:1.5rem">
+                <div class="card" style="border-left:3px solid var(--blue)">
+                    <h3><span class="icon-circle ic-blue">🏗️</span> Qualité Structurelle</h3>
+                    <p><strong>Comment</strong> le code est écrit : style, complexité, maintenabilité, duplication.</p>
+                </div>
+                <div class="card" style="border-left:3px solid var(--green)">
+                    <h3><span class="icon-circle ic-green">⚙️</span> Qualité Fonctionnelle</h3>
+                    <p><strong>Est-ce que</strong> le code fonctionne correctement ? Tests, couverture, fiabilité.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. SONARQUBE -->
+    <section id="sonarqube">
+        <div class="container fade-in">
+            <span class="section-label label-red">📌 Section 8</span>
+            <h2 class="section-title">🔍 SonarQube</h2>
+            <p class="section-desc">Outil open-source d'analyse statique du code, multi-langages.</p>
+            <div class="grid-3" style="margin-bottom:1.5rem">
+                <div class="card" style="border-top:3px solid var(--red)">
+                    <h3><span class="icon-circle ic-red">🐛</span> Bugs</h3>
+                    <p>Erreurs affectant la <strong>fiabilité</strong>.</p><span class="tag tag-red"
+                        style="margin-top:.5rem">Reliability</span>
+                </div>
+                <div class="card" style="border-top:3px solid var(--orange)">
+                    <h3><span class="icon-circle ic-orange">🔓</span> Vulnerabilities</h3>
+                    <p>Failles affectant la <strong>sécurité</strong>.</p><span class="tag tag-orange"
+                        style="margin-top:.5rem">Security</span>
+                </div>
+                <div class="card" style="border-top:3px solid var(--yellow)">
+                    <h3><span class="icon-circle ic-yellow">🧹</span> Code Smells</h3>
+                    <p>Problèmes affectant la <strong>maintenabilité</strong>.</p><span class="tag tag-yellow"
+                        style="margin-top:.5rem">Maintainability</span>
+                </div>
+            </div>
+
+            <!-- Architecture -->
+            <div class="card fade-in" style="border-left:3px solid var(--purple);margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-purple">🏛️</span> Architecture SonarQube</h3>
+                <div style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin:.8rem 0">
+                    <div
+                        style="background:var(--blue-bg);padding:.8rem 1.2rem;border-radius:8px;text-align:center;flex:1;min-width:120px">
+                        <span style="font-size:1.3rem">🔎</span>
+                        <p style="font-weight:700;color:var(--blue);font-size:.85rem;margin-top:.3rem">Scanner</p>
+                        <p style="font-size:.75rem">Analyse le code</p>
+                    </div>
+                    <div class="wf-arrow" style="flex-shrink:0">→</div>
+                    <div
+                        style="background:var(--purple-bg);padding:.8rem 1.2rem;border-radius:8px;text-align:center;flex:1;min-width:120px">
+                        <span style="font-size:1.3rem">🖥️</span>
+                        <p style="font-weight:700;color:var(--purple);font-size:.85rem;margin-top:.3rem">Serveur</p>
+                        <p style="font-size:.75rem">Traite les rapports</p>
+                    </div>
+                    <div class="wf-arrow" style="flex-shrink:0">→</div>
+                    <div
+                        style="background:var(--green-bg);padding:.8rem 1.2rem;border-radius:8px;text-align:center;flex:1;min-width:120px">
+                        <span style="font-size:1.3rem">🗄️</span>
+                        <p style="font-weight:700;color:var(--green);font-size:.85rem;margin-top:.3rem">Base de Données
+                        </p>
+                        <p style="font-size:.75rem">PostgreSQL…</p>
+                    </div>
+                    <div class="wf-arrow" style="flex-shrink:0">→</div>
+                    <div
+                        style="background:var(--cyan-bg);padding:.8rem 1.2rem;border-radius:8px;text-align:center;flex:1;min-width:120px">
+                        <span style="font-size:1.3rem">🌐</span>
+                        <p style="font-weight:700;color:var(--cyan);font-size:.85rem;margin-top:.3rem">Interface Web</p>
+                        <p style="font-size:.75rem">Dashboard</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sonar Measures -->
+            <div class="card fade-in" style="margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-blue">📊</span> Métriques SonarQube</h3>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">
+                    <span class="tag tag-blue">💬 Densité commentaires</span><span class="tag tag-green">✅ Couverture
+                        tests</span><span class="tag tag-yellow">📋 Duplication</span><span class="tag tag-purple">🔄
+                        Complexité</span><span class="tag tag-cyan">🔧 Maintenabilité</span><span
+                        class="tag tag-orange">🛡️ Fiabilité</span><span class="tag tag-red">🔐 Sécurité</span><span
+                        class="tag tag-blue">⏱️ Dette technique</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. INSTALLATION -->
+    <section id="installation">
+        <div class="container fade-in">
+            <span class="section-label label-cyan">📌 Section 9</span>
+            <h2 class="section-title">⚙️ Installation SonarQube</h2>
+            <p class="section-desc">Les étapes pour installer et configurer SonarQube.</p>
+            <div class="grid-3">
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--purple),var(--accent))">
+                        1</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Installer JDK</h3>
+                    <p style="font-size:.82rem">Java Development Kit requis</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--purple),var(--accent))">
+                        2</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Installer PostgreSQL</h3>
+                    <p style="font-size:.82rem">Base de données requise</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--purple),var(--accent))">
+                        3</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Télécharger SonarQube</h3>
+                    <p style="font-size:.82rem">Version Community (gratuite)</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--purple),var(--accent))">
+                        4</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Configurer</h3>
+                    <p style="font-size:.82rem">Modifier sonar.properties</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--purple),var(--accent))">
+                        5</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Démarrer le Serveur</h3>
+                    <p style="font-size:.82rem">Lancer SonarQube</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--purple),var(--accent))">
+                        6</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Accéder</h3>
+                    <p style="font-size:.82rem"><code>localhost:9000</code></p>
+                </div>
+            </div>
+            <div class="callout callout-purple fade-in" style="margin-top:1.5rem">🔑 Login par défaut :
+                <code>admin</code> / <code>admin</code> — à changer immédiatement après la première connexion.
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. ANALYSE -->
+    <section id="analyse">
+        <div class="container fade-in">
+            <span class="section-label label-green">📌 Section 10</span>
+            <h2 class="section-title">📊 Analyser un Projet</h2>
+            <p class="section-desc">Scanner le code source et visualiser les résultats.</p>
+            <div class="grid-4">
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem;background:linear-gradient(135deg,var(--green),var(--cyan))">
+                        1</div>
+                    <h3 style="justify-content:center;font-size:.9rem">Créer projet</h3>
+                    <p style="font-size:.8rem">Nom + clé du projet</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem;background:linear-gradient(135deg,var(--green),var(--cyan))">
+                        2</div>
+                    <h3 style="justify-content:center;font-size:.9rem">Générer token</h3>
+                    <p style="font-size:.8rem">Authentification scanner</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem;background:linear-gradient(135deg,var(--green),var(--cyan))">
+                        3</div>
+                    <h3 style="justify-content:center;font-size:.9rem">Lancer scanner</h3>
+                    <p style="font-size:.8rem">SonarScanner CLI</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem;background:linear-gradient(135deg,var(--green),var(--cyan))">
+                        4</div>
+                    <h3 style="justify-content:center;font-size:.9rem">Voir résultats</h3>
+                    <p style="font-size:.8rem">Dashboard web</p>
+                </div>
+            </div>
+            <div class="card fade-in" style="margin-top:1.5rem;border-left:3px solid var(--cyan)">
+                <h3><span class="icon-circle ic-cyan">📝</span> Configuration sonar-project.properties</h3>
+                <div class="cmd-block"><span class="comment"># Clé unique du projet</span>
+                    sonar.projectKey=mon_projet
+
+                    <span class="comment"># Nom affiché (optionnel)</span>
+                    sonar.projectName=Mon Projet
+
+                    <span class="comment"># Dossier source</span>
+                    sonar.sources=.
+
+                    <span class="comment"># Encodage</span>
+                    sonar.sourceEncoding=UTF-8
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 11. ALM INTEGRATION -->
+    <section id="alm">
+        <div class="container fade-in">
+            <span class="section-label label-yellow">📌 Section 11</span>
+            <h2 class="section-title">🔗 Intégration ALM</h2>
+            <p class="section-desc">SonarQube dans le cycle de vie du développement logiciel.</p>
+            <div class="card" style="margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-yellow">🔄</span> Workflow ALM complet</h3>
+                <div style="display:grid;gap:.6rem;margin-top:.8rem">
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--blue-bg);padding:.7rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:26px;height:26px;font-size:.75rem;background:linear-gradient(135deg,var(--blue),var(--cyan))">1</span><span
+                            style="font-size:.88rem">Développeurs codent dans <strong>IDE + SonarLint</strong> (analyse
+                            locale temps réel)</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--green-bg);padding:.7rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:26px;height:26px;font-size:.75rem;background:linear-gradient(135deg,var(--green),var(--cyan))">2</span><span
+                            style="font-size:.88rem">Push vers <strong>SCM</strong> (GitHub, GitLab…)</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--purple-bg);padding:.7rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:26px;height:26px;font-size:.75rem;background:linear-gradient(135deg,var(--purple),var(--accent))">3</span><span
+                            style="font-size:.88rem"><strong>CI/CD</strong> déclenche automatiquement le
+                            SonarScanner</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--yellow-bg);padding:.7rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:26px;height:26px;font-size:.75rem;background:linear-gradient(135deg,var(--yellow),var(--orange))">4</span><span
+                            style="font-size:.88rem">Rapport envoyé au <strong>serveur SonarQube</strong></span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--cyan-bg);padding:.7rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:26px;height:26px;font-size:.75rem;background:linear-gradient(135deg,var(--cyan),var(--blue))">5</span><span
+                            style="font-size:.88rem">Résultats stockés en <strong>base de données</strong> et affichés
+                            sur le dashboard</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--orange-bg);padding:.7rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:26px;height:26px;font-size:.75rem;background:linear-gradient(135deg,var(--orange),var(--red))">6</span><span
+                            style="font-size:.88rem">Développeurs <strong>review et corrigent</strong> la dette
+                            technique</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--red-bg);padding:.7rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:26px;height:26px;font-size:.75rem;background:linear-gradient(135deg,var(--red),var(--orange))">7</span><span
+                            style="font-size:.88rem">Managers reçoivent les <strong>rapports d'analyse</strong></span>
+                    </div>
+                </div>
+            </div>
+            <div class="callout callout-green fade-in">💡 <strong>SonarLint</strong> est une extension IDE gratuite qui
+                identifie les problèmes <strong>en temps réel</strong>. Compatible VSCode, Eclipse, JetBrains…</div>
+        </div>
+    </section>
+
+    <!-- NAV LINKS -->
+    <section style="padding:3rem 0">
+        <div class="container fade-in">
+            <div class="grid-2">
+                <a href="4.%20Approche%20agile_Manipuler%20JIRA.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;gap:1rem;border:1px solid rgba(59,130,246,.3);background:linear-gradient(135deg,var(--card),rgba(59,130,246,.08));cursor:pointer">
+                        <div style="font-size:1.5rem;color:var(--blue)">←</div>
+                        <div><span class="section-label label-blue"
+                                style="margin-bottom:.3rem;font-size:.65rem">Chapitre précédent</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">Manipuler JIRA</h3>
+                        </div>
+                    </div>
+                </a>
+                <a href="6.%20Approche%20Agile_tests%20unitaires%20et%20couverture%20de%20code.html"
+                    style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:flex-end;gap:1rem;border:1px solid rgba(20,184,166,.3);background:linear-gradient(135deg,var(--card),rgba(20,184,166,.08));cursor:pointer;text-align:right">
+                        <div><span class="section-label label-green"
+                                style="margin-bottom:.3rem;font-size:.65rem">Chapitre suivant</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">Tests Unitaires</h3>
+                        </div>
+                        <div style="font-size:1.5rem;color:var(--green)">→</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>📘 Module Approche Agile — Chapitre 5 : Git, GitLab & SonarQube | Stagiaire : Youssef NAJIMI | DEVOWFS</p>
+        <p style="margin-top:.5rem"><a href="1.%20Approche%20agile_Introduction.html">← Retour au module principal</a>
+        </p>
+    </footer>
+
+    <script>
+        const obs = new IntersectionObserver(e => { e.forEach(e => { e.isIntersecting && e.target.classList.add('visible') }) }, { threshold: .1 });
+        document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCRUM — Gestion de Projet Agile</title>
+    <meta name="description" content="Chapitre 3 : Méthodologie Scrum — Rôles, Cérémonies, Artefacts et User Stories.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --bg: #0a0e1a;
+            --surface: #111827;
+            --card: #1a2236;
+            --card-hover: #1e2a42;
+            --border: #2a3550;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, .15);
+            --green: #10b981;
+            --green-bg: rgba(16, 185, 129, .1);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, .1);
+            --yellow: #f59e0b;
+            --yellow-bg: rgba(245, 158, 11, .1);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59, 130, 246, .1);
+            --purple: #a855f7;
+            --purple-bg: rgba(168, 85, 247, .1);
+            --cyan: #06b6d4;
+            --cyan-bg: rgba(6, 182, 212, .1);
+            --orange: #f97316;
+            --orange-bg: rgba(249, 115, 22, .1);
+            --radius: 12px;
+            --transition: .3s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden
+        }
+
+        a {
+            color: var(--accent-light);
+            text-decoration: none
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent)
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 14, 26, .85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px
+        }
+
+        .nav-logo {
+            font-weight: 800;
+            font-size: 1.15rem;
+            background: linear-gradient(135deg, var(--accent-light), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            font-size: .85rem;
+            font-weight: 500;
+            transition: color var(--transition)
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-light)
+        }
+
+        .nav-select {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .15), rgba(168, 85, 247, .15));
+            color: var(--accent-light);
+            border: 1px solid rgba(99, 102, 241, .35);
+            border-radius: 8px;
+            padding: .4rem .8rem .4rem .6rem;
+            font-family: 'Inter', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all .3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23818cf8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .6rem center;
+            padding-right: 1.8rem
+        }
+
+        .nav-select:hover {
+            border-color: var(--accent-light);
+            background: linear-gradient(135deg, rgba(99, 102, 241, .25), rgba(168, 85, 247, .25))
+        }
+
+        .nav-select option {
+            background: var(--surface);
+            color: var(--text);
+            padding: .5rem
+        }
+
+        .hero {
+            padding: 10rem 2rem 5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(168, 85, 247, .15) 0%, transparent 70%);
+            pointer-events: none
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: .4rem 1rem;
+            border-radius: 50px;
+            background: var(--purple-bg);
+            border: 1px solid rgba(168, 85, 247, .3);
+            color: var(--purple);
+            font-size: .8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 1rem
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--purple), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 2rem
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem
+        }
+
+        section {
+            padding: 4rem 0
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .35rem .9rem;
+            border-radius: 50px;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 1rem
+        }
+
+        .label-blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+            border: 1px solid rgba(59, 130, 246, .25)
+        }
+
+        .label-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid rgba(16, 185, 129, .25)
+        }
+
+        .label-purple {
+            background: var(--purple-bg);
+            color: var(--purple);
+            border: 1px solid rgba(168, 85, 247, .25)
+        }
+
+        .label-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+            border: 1px solid rgba(245, 158, 11, .25)
+        }
+
+        .label-red {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, .25)
+        }
+
+        .label-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan);
+            border: 1px solid rgba(6, 182, 212, .25)
+        }
+
+        .label-orange {
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid rgba(249, 115, 22, .25)
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: .5rem
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+            max-width: 700px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            transition: all var(--transition)
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, .08)
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: .6rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .card p,
+        .card li {
+            color: var(--text-muted);
+            font-size: .92rem
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0
+        }
+
+        .card ul li {
+            padding: .3rem 0;
+            padding-left: 1.4rem;
+            position: relative
+        }
+
+        .card ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent-light)
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem
+        }
+
+        .icon-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0
+        }
+
+        .ic-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .ic-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .ic-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .ic-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .ic-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .ic-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .ic-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .styled-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border)
+        }
+
+        .styled-table thead {
+            background: linear-gradient(135deg, var(--purple), #6366f1)
+        }
+
+        .styled-table th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: .9rem;
+            color: #fff;
+            letter-spacing: .5px
+        }
+
+        .styled-table td {
+            padding: .9rem 1.5rem;
+            font-size: .9rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none
+        }
+
+        .styled-table tbody tr {
+            background: var(--card);
+            transition: background var(--transition)
+        }
+
+        .styled-table tbody tr:hover {
+            background: var(--card-hover)
+        }
+
+        .tag {
+            display: inline-block;
+            padding: .25rem .7rem;
+            border-radius: 6px;
+            font-size: .78rem;
+            font-weight: 600
+        }
+
+        .tag-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .tag-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .tag-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .tag-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .tag-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .tag-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .callout {
+            border-left: 3px solid var(--accent);
+            background: var(--accent-glow);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            margin: 1.5rem 0;
+            font-size: .92rem
+        }
+
+        .callout-green {
+            border-left-color: var(--green);
+            background: var(--green-bg)
+        }
+
+        .callout-yellow {
+            border-left-color: var(--yellow);
+            background: var(--yellow-bg)
+        }
+
+        .callout-red {
+            border-left-color: var(--red);
+            background: var(--red-bg)
+        }
+
+        .callout-purple {
+            border-left-color: var(--purple);
+            background: var(--purple-bg)
+        }
+
+        /* MANIFESTO VALUES */
+        .manifesto-card {
+            background: linear-gradient(135deg, var(--card), var(--card-hover));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            position: relative;
+            overflow: hidden
+        }
+
+        .manifesto-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--green), var(--cyan))
+        }
+
+        .manifesto-vs {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap
+        }
+
+        .manifesto-primary {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--green);
+            flex: 1;
+            min-width: 200px
+        }
+
+        .manifesto-arrow {
+            color: var(--text-dim);
+            font-size: 1.3rem;
+            font-weight: 800
+        }
+
+        .manifesto-secondary {
+            font-size: .9rem;
+            color: var(--text-dim);
+            flex: 1;
+            min-width: 200px
+        }
+
+        /* ROLE CARDS */
+        .role-card {
+            position: relative;
+            overflow: hidden
+        }
+
+        .role-card .role-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1rem
+        }
+
+        /* CEREMONY TIMELINE */
+        .ceremony-line {
+            position: relative;
+            padding-left: 2.5rem
+        }
+
+        .ceremony-line::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--purple), var(--accent), var(--green), var(--yellow))
+        }
+
+        .ceremony-item {
+            position: relative;
+            margin-bottom: 2rem
+        }
+
+        .ceremony-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            left: -2.05rem;
+            top: .5rem;
+            border: 2px solid var(--bg);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, .3)
+        }
+
+        /* USER STORY */
+        .story-card {
+            background: linear-gradient(135deg, var(--card), rgba(168, 85, 247, .05));
+            border: 1px solid rgba(168, 85, 247, .2);
+            border-radius: var(--radius);
+            padding: 2rem;
+            position: relative
+        }
+
+        .story-line {
+            display: flex;
+            align-items: flex-start;
+            gap: .8rem;
+            margin-bottom: .6rem
+        }
+
+        .story-keyword {
+            font-weight: 800;
+            font-size: .85rem;
+            padding: .2rem .6rem;
+            border-radius: 5px;
+            white-space: nowrap
+        }
+
+        /* SCRUM CYCLE SVG */
+        .cycle-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            margin: 2rem 0;
+            text-align: center
+        }
+
+        /* STATS */
+        .stat-box {
+            text-align: center;
+            padding: 1.5rem
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1
+        }
+
+        .stat-label {
+            font-size: .9rem;
+            color: var(--text-muted);
+            margin-top: .5rem
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: .85rem;
+            margin-top: 4rem
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 3rem
+            }
+
+            .section-title {
+                font-size: 1.5rem
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr
+            }
+
+            .manifesto-vs {
+                flex-direction: column;
+                gap: .3rem
+            }
+
+            .manifesto-arrow {
+                transform: rotate(90deg)
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .6s ease, transform .6s ease
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-logo">📘 Gestion de Projet</div>
+            <ul class="nav-links">
+                <li><a href="1.%20Approche%20agile_Introduction.html">← Retour</a></li>
+                <li><a href="#manifeste">Manifeste</a></li>
+                <li><a href="#roles">Rôles</a></li>
+                <li><a href="#ceremonies">Cérémonies</a></li>
+                <li><a href="#artefacts">Artefacts</a></li>
+                <li><a href="#userstories">User Stories</a></li>
+                <li><a href="#resume">Résumé</a></li>
+                <li><a href="4.%20Approche%20agile_Manipuler%20JIRA.html"
+                        style="color:var(--accent-light);font-weight:600">Jira →</a></li>
+                <li>
+                    <select class="nav-select" onchange="if(this.value)window.location.href=this.value">
+                        <option value="">📚 Chapitres</option>
+                        <option value="1.%20Approche%20agile_Introduction.html">📖 Introduction</option>
+                        <option value="2.%20Approche%20agile_Préparer%20un%20projet.html">📊 PERT & Gantt</option>
+                        <option value="3.%20Approche%20agile_SCRUM.html">🔄 Scrum</option>
+                        <option value="4.%20Approche%20agile_Manipuler%20JIRA.html">🔧 Jira</option>
+                        <option value="5.%20Approche%20Agile_gestion%20de%20version%20et%20qualité%20du%20code.html">🔀
+                            Git & SonarQube</option>
+                        <option value="6.%20Approche%20Agile_tests%20unitaires%20et%20couverture%20de%20code.html">🧪
+                            Tests Unitaires</option>
+                        <option value="7.%20Approche%20agile_DevOps.html">🔄 DevOps & CI/CD</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="hero-badge">📌 Chapitre 3 — Module Approche Agile</div>
+        <h1>Méthodologie <span>SCRUM</span></h1>
+        <p>Le framework Agile le plus utilisé : rôles, cérémonies, artefacts et user stories pour une gestion de projet
+            itérative et collaborative.</p>
+        <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1rem">
+            <span class="tag tag-purple">👥 3 Rôles</span>
+            <span class="tag tag-blue">📅 4 Cérémonies</span>
+            <span class="tag tag-green">📋 3 Artefacts</span>
+            <span class="tag tag-yellow">🔄 Itératif</span>
+        </div>
+    </header>
+
+    <!-- 1. MANIFESTE AGILE -->
+    <section id="manifeste">
+        <div class="container fade-in">
+            <span class="section-label label-green">🟢 Section 1</span>
+            <h2 class="section-title">📜 Le Manifeste Agile</h2>
+            <p class="section-desc">Les 4 valeurs fondamentales qui guident l'approche Agile.</p>
+
+            <div style="display:grid;gap:1.2rem">
+                <div class="manifesto-card">
+                    <div class="manifesto-vs">
+                        <div class="manifesto-primary">👥 Les individus et leurs interactions</div>
+                        <div class="manifesto-arrow">›</div>
+                        <div class="manifesto-secondary">Les processus et les outils</div>
+                    </div>
+                </div>
+                <div class="manifesto-card">
+                    <div class="manifesto-vs">
+                        <div class="manifesto-primary">💻 Des logiciels opérationnels</div>
+                        <div class="manifesto-arrow">›</div>
+                        <div class="manifesto-secondary">Une documentation exhaustive</div>
+                    </div>
+                </div>
+                <div class="manifesto-card">
+                    <div class="manifesto-vs">
+                        <div class="manifesto-primary">🤝 La collaboration avec les clients</div>
+                        <div class="manifesto-arrow">›</div>
+                        <div class="manifesto-secondary">La négociation contractuelle</div>
+                    </div>
+                </div>
+                <div class="manifesto-card">
+                    <div class="manifesto-vs">
+                        <div class="manifesto-primary">🔄 L'adaptation au changement</div>
+                        <div class="manifesto-arrow">›</div>
+                        <div class="manifesto-secondary">Le suivi d'un plan</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout callout-green fade-in" style="margin-top:1.5rem">
+                💡 Cela ne veut pas dire que les éléments de droite n'ont pas de valeur — mais que ceux de
+                <strong>gauche ont plus de valeur</strong>.
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. RÔLES SCRUM -->
+    <section id="roles">
+        <div class="container fade-in">
+            <span class="section-label label-blue">🔵 Section 2</span>
+            <h2 class="section-title">👥 Les Rôles Scrum</h2>
+            <p class="section-desc">Trois rôles principaux + parties prenantes et utilisateurs.</p>
+
+            <div class="grid-3" style="margin-bottom:2rem">
+                <!-- Product Owner -->
+                <div class="card role-card" style="border-top:3px solid var(--blue)">
+                    <div class="role-icon ic-blue" style="width:56px;height:56px;font-size:1.6rem;margin-bottom:1rem">👤
+                    </div>
+                    <h3>Product Owner</h3>
+                    <ul>
+                        <li>Définit les caractéristiques du produit</li>
+                        <li>Décide du contenu et date de livraison</li>
+                        <li>Responsable du retour sur investissement</li>
+                        <li>Priorise les fonctions (valeur business)</li>
+                        <li>Ajuste les priorités pour chaque sprint</li>
+                        <li>Accepte ou rejette les résultats</li>
+                    </ul>
+                </div>
+
+                <!-- Équipe de développement -->
+                <div class="card role-card" style="border-top:3px solid var(--green)">
+                    <div class="role-icon ic-green" style="width:56px;height:56px;font-size:1.6rem;margin-bottom:1rem">
+                        👨‍💻</div>
+                    <h3>Équipe de Développement</h3>
+                    <ul>
+                        <li>Entre <strong>5 et 9 personnes</strong></li>
+                        <li><strong>Pluridisciplinaire</strong></li>
+                        <li><strong>Auto-organisée</strong></li>
+                        <li><strong>Dédiée</strong> au projet</li>
+                    </ul>
+                    <div class="callout callout-green"
+                        style="margin-top:.8rem;margin-bottom:0;padding:.8rem 1rem;font-size:.85rem">
+                        ✔ L'équipe s'engage collectivement sur les objectifs du sprint.
+                    </div>
+                </div>
+
+                <!-- Scrum Master -->
+                <div class="card role-card" style="border-top:3px solid var(--purple)">
+                    <div class="role-icon ic-purple" style="width:56px;height:56px;font-size:1.6rem;margin-bottom:1rem">
+                        🛡️</div>
+                    <h3>Scrum Master</h3>
+                    <ul>
+                        <li>Garant des valeurs et pratiques Scrum</li>
+                        <li><strong>Élimine les obstacles</strong></li>
+                        <li>S'assure que l'équipe est productive</li>
+                        <li>Facilite la coopération entre rôles</li>
+                        <li>Protège l'équipe des interventions extérieures</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Parties Prenantes & Utilisateurs -->
+            <div class="grid-2 fade-in">
+                <div class="card">
+                    <h3><span class="icon-circle ic-yellow">🌐</span> Parties Prenantes</h3>
+                    <p style="margin-bottom:.6rem">Personnes ou groupes qui ont des intérêts sur le projet et sont
+                        concernés par les résultats.</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem">
+                        <span class="tag tag-blue">Marché</span>
+                        <span class="tag tag-green">Client final</span>
+                        <span class="tag tag-purple">Stratégie d'innovation</span>
+                        <span class="tag tag-yellow">Autres équipes</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-cyan">🧑‍💼</span> Utilisateurs</h3>
+                    <p style="margin-bottom:.6rem">Source d'information privilégiée pour le projet.</p>
+                    <ul>
+                        <li>Expert du domaine métier</li>
+                        <li>Aide à définir les <strong>priorités</strong></li>
+                        <li>Fournit les <strong>détails des fonctionnalités</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Scrum Roles Diagram -->
+            <div class="cycle-container fade-in" style="margin-top:2rem">
+                <h3 style="margin-bottom:1.5rem;font-size:1.15rem">🔄 Vue d'ensemble des Rôles Scrum</h3>
+                <svg width="500" height="280" viewBox="0 0 500 280" style="max-width:100%">
+                    <!-- Central circle -->
+                    <circle cx="250" cy="140" r="50" fill="none" stroke="var(--purple)" stroke-width="2"
+                        stroke-dasharray="5,3" />
+                    <text x="250" y="135" text-anchor="middle" fill="var(--purple)" font-size="13"
+                        font-weight="800">SCRUM</text>
+                    <text x="250" y="155" text-anchor="middle" fill="var(--text-dim)" font-size="10">Framework</text>
+
+                    <!-- Product Owner -->
+                    <circle cx="100" cy="80" r="40" fill="var(--blue-bg)" stroke="var(--blue)" stroke-width="2" />
+                    <text x="100" y="72" text-anchor="middle" fill="var(--blue)" font-size="20">👤</text>
+                    <text x="100" y="92" text-anchor="middle" fill="var(--text)" font-size="9" font-weight="700">Product
+                        Owner</text>
+                    <line x1="140" y1="95" x2="200" y2="125" stroke="var(--blue)" stroke-width="1.5"
+                        stroke-dasharray="4,3" />
+
+                    <!-- Dev Team -->
+                    <circle cx="400" cy="80" r="40" fill="var(--green-bg)" stroke="var(--green)" stroke-width="2" />
+                    <text x="400" y="72" text-anchor="middle" fill="var(--green)" font-size="20">👨‍💻</text>
+                    <text x="400" y="92" text-anchor="middle" fill="var(--text)" font-size="9" font-weight="700">Équipe
+                        Dev</text>
+                    <line x1="360" y1="95" x2="300" y2="125" stroke="var(--green)" stroke-width="1.5"
+                        stroke-dasharray="4,3" />
+
+                    <!-- Scrum Master -->
+                    <circle cx="250" cy="240" r="40" fill="var(--purple-bg)" stroke="var(--purple)" stroke-width="2" />
+                    <text x="250" y="232" text-anchor="middle" fill="var(--purple)" font-size="20">🛡️</text>
+                    <text x="250" y="252" text-anchor="middle" fill="var(--text)" font-size="9" font-weight="700">Scrum
+                        Master</text>
+                    <line x1="250" y1="200" x2="250" y2="190" stroke="var(--purple)" stroke-width="1.5"
+                        stroke-dasharray="4,3" />
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. CÉRÉMONIES SCRUM -->
+    <section id="ceremonies">
+        <div class="container fade-in">
+            <span class="section-label label-purple">🟣 Section 3</span>
+            <h2 class="section-title">📅 Les Cérémonies Scrum</h2>
+            <p class="section-desc">4 événements structurants pour l'inspection et l'adaptation.</p>
+
+            <div class="ceremony-line">
+                <!-- Sprint Planning -->
+                <div class="ceremony-item">
+                    <div class="ceremony-dot" style="background:var(--blue)"></div>
+                    <div class="card" style="border-left:3px solid var(--blue)">
+                        <h3><span class="icon-circle ic-blue">📋</span> Sprint Planning</h3>
+                        <p style="margin-bottom:.8rem">Planification collaborative en <strong>2 parties</strong> :</p>
+                        <div class="grid-2" style="gap:1rem">
+                            <div style="background:var(--blue-bg);padding:1rem;border-radius:8px">
+                                <p style="font-weight:700;color:var(--blue);margin-bottom:.4rem">Partie 1 — QUOI ?</p>
+                                <ul>
+                                    <li>Présentation de l'objectif du sprint</li>
+                                    <li>Présentation des stories</li>
+                                    <li>Construction du backlog de sprint</li>
+                                    <li>Engagement de l'équipe</li>
+                                </ul>
+                            </div>
+                            <div style="background:var(--purple-bg);padding:1rem;border-radius:8px">
+                                <p style="font-weight:700;color:var(--purple);margin-bottom:.4rem">Partie 2 — COMMENT ?
+                                </p>
+                                <ul>
+                                    <li>Conception en équipe</li>
+                                    <li>Découpage en tâches</li>
+                                    <li>Estimation des tâches</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Scrum -->
+                <div class="ceremony-item">
+                    <div class="ceremony-dot" style="background:var(--green)"></div>
+                    <div class="card" style="border-left:3px solid var(--green)">
+                        <h3><span class="icon-circle ic-green">⏰</span> Mêlée Quotidienne (Daily Scrum)</h3>
+                        <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem;flex-wrap:wrap">
+                            <span class="tag tag-green">⏱ 15 minutes</span>
+                            <span class="tag tag-blue">📅 Chaque jour</span>
+                            <span class="tag tag-purple">🧍 Debout</span>
+                        </div>
+                        <p style="font-weight:600;margin-bottom:.5rem">3 questions clés :</p>
+                        <div style="display:grid;gap:.6rem">
+                            <div
+                                style="display:flex;align-items:center;gap:.8rem;background:rgba(16,185,129,.05);padding:.7rem 1rem;border-radius:8px;border-left:3px solid var(--green)">
+                                <span style="font-size:1.2rem">1️⃣</span>
+                                <span style="color:var(--text)">Qu'ai-je fait <strong>hier</strong> ?</span>
+                            </div>
+                            <div
+                                style="display:flex;align-items:center;gap:.8rem;background:rgba(59,130,246,.05);padding:.7rem 1rem;border-radius:8px;border-left:3px solid var(--blue)">
+                                <span style="font-size:1.2rem">2️⃣</span>
+                                <span style="color:var(--text)">Que vais-je faire <strong>aujourd'hui</strong> ?</span>
+                            </div>
+                            <div
+                                style="display:flex;align-items:center;gap:.8rem;background:rgba(239,68,68,.05);padding:.7rem 1rem;border-radius:8px;border-left:3px solid var(--red)">
+                                <span style="font-size:1.2rem">3️⃣</span>
+                                <span style="color:var(--text)">Ai-je des <strong>obstacles</strong> ?</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sprint Review -->
+                <div class="ceremony-item">
+                    <div class="ceremony-dot" style="background:var(--yellow)"></div>
+                    <div class="card" style="border-left:3px solid var(--yellow)">
+                        <h3><span class="icon-circle ic-yellow">🖥️</span> Sprint Review (Démonstration)</h3>
+                        <p style="margin-bottom:.6rem">Présentation de l'<strong>incrément de produit
+                                utilisable</strong> :</p>
+                        <ul>
+                            <li>Chacun présente ce qu'il a fait</li>
+                            <li>Le PO <strong>accepte ou rejette</strong> les résultats</li>
+                            <li>Le PO note les retours et feedbacks</li>
+                        </ul>
+                        <div class="callout callout-yellow"
+                            style="margin-bottom:0;margin-top:.8rem;padding:.8rem 1rem;font-size:.85rem">
+                            🎯 Objectif : valider que l'incrément correspond aux attentes du Product Owner.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rétrospective -->
+                <div class="ceremony-item">
+                    <div class="ceremony-dot" style="background:var(--purple)"></div>
+                    <div class="card" style="border-left:3px solid var(--purple)">
+                        <h3><span class="icon-circle ic-purple">🔁</span> Rétrospective</h3>
+                        <p style="margin-bottom:.8rem">Amélioration continue du processus en <strong>5 étapes</strong> :
+                        </p>
+                        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+                            <span class="tag tag-purple">1. Mise en condition</span>
+                            <span class="tag tag-blue">2. Revue des actions</span>
+                            <span class="tag tag-green">3. Rassembler données</span>
+                            <span class="tag tag-yellow">4. Chercher des idées</span>
+                            <span class="tag tag-cyan">5. Plan d'action</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. ARTEFACTS -->
+    <section id="artefacts">
+        <div class="container fade-in">
+            <span class="section-label label-yellow">🟡 Section 4</span>
+            <h2 class="section-title">📋 Les Artefacts Scrum</h2>
+            <p class="section-desc">Les trois éléments tangibles qui supportent le framework Scrum.</p>
+
+            <div class="grid-3">
+                <!-- Product Backlog -->
+                <div class="card" style="border-top:3px solid var(--blue)">
+                    <h3><span class="icon-circle ic-blue">📋</span> Product Backlog</h3>
+                    <p style="margin-bottom:.8rem">Liste ordonnée de tout ce qui pourrait être nécessaire dans le
+                        produit.</p>
+                    <div style="display:grid;gap:.5rem">
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--blue-bg);border-radius:6px">
+                            <span style="font-weight:700;color:var(--blue)">D</span>
+                            <span style="font-size:.85rem">Detailed appropriately</span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--green-bg);border-radius:6px">
+                            <span style="font-weight:700;color:var(--green)">E</span>
+                            <span style="font-size:.85rem">Estimated</span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--purple-bg);border-radius:6px">
+                            <span style="font-weight:700;color:var(--purple)">E</span>
+                            <span style="font-size:.85rem">Evolutive</span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--yellow-bg);border-radius:6px">
+                            <span style="font-weight:700;color:var(--yellow)">P</span>
+                            <span style="font-size:.85rem">Prioritized</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sprint Backlog -->
+                <div class="card" style="border-top:3px solid var(--green)">
+                    <h3><span class="icon-circle ic-green">📌</span> Sprint Backlog</h3>
+                    <p style="margin-bottom:.8rem">Sous-ensemble du Product Backlog sélectionné pour le sprint en cours.
+                    </p>
+                    <ul>
+                        <li>Liste des <strong>tâches du sprint</strong></li>
+                        <li>Engagement de l'équipe</li>
+                        <li>Mis à jour quotidiennement</li>
+                        <li>Visible par tous</li>
+                    </ul>
+                    <div class="callout callout-green"
+                        style="margin-bottom:0;margin-top:.8rem;padding:.8rem 1rem;font-size:.85rem">
+                        ✔ Seule l'équipe peut modifier le Sprint Backlog.
+                    </div>
+                </div>
+
+                <!-- Burndown Chart -->
+                <div class="card" style="border-top:3px solid var(--purple)">
+                    <h3><span class="icon-circle ic-purple">📊</span> Burndown Chart</h3>
+                    <p style="margin-bottom:.8rem">Graphique montrant l'avancement du sprint.</p>
+                    <!-- Mini Burndown Chart SVG -->
+                    <svg width="100%" height="140" viewBox="0 0 220 140" style="margin-top:.5rem">
+                        <line x1="30" y1="10" x2="30" y2="120" stroke="var(--text-dim)" stroke-width="1" />
+                        <line x1="30" y1="120" x2="210" y2="120" stroke="var(--text-dim)" stroke-width="1" />
+                        <!-- Ideal line -->
+                        <line x1="30" y1="15" x2="200" y2="115" stroke="var(--text-dim)" stroke-width="1.5"
+                            stroke-dasharray="5,3" />
+                        <!-- Actual line -->
+                        <polyline points="30,15 60,25 90,30 110,55 140,60 165,85 190,100 200,115" fill="none"
+                            stroke="var(--green)" stroke-width="2.5" stroke-linejoin="round" />
+                        <text x="115" y="138" text-anchor="middle" fill="var(--text-dim)" font-size="8">Jours du
+                            Sprint</text>
+                        <text x="10" y="70" text-anchor="middle" fill="var(--text-dim)" font-size="8"
+                            transform="rotate(-90,10,70)">Travail restant</text>
+                    </svg>
+                    <div style="display:flex;gap:1rem;justify-content:center;margin-top:.5rem;font-size:.75rem">
+                        <span style="display:flex;align-items:center;gap:.3rem"><span
+                                style="width:12px;height:2px;background:var(--text-dim);display:inline-block;border-top:1.5px dashed var(--text-dim)"></span>
+                            Idéal</span>
+                        <span style="display:flex;align-items:center;gap:.3rem"><span
+                                style="width:12px;height:2.5px;background:var(--green);display:inline-block;border-radius:1px"></span>
+                            Réel</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. USER STORIES -->
+    <section id="userstories">
+        <div class="container fade-in">
+            <span class="section-label label-orange">🟠 Section 5</span>
+            <h2 class="section-title">📝 User Stories</h2>
+            <p class="section-desc">Support de discussion — la carte d'identité des fonctionnalités écrite par le
+                Product Owner.</p>
+
+            <!-- Structure -->
+            <div class="card" style="margin-bottom:2rem;border-left:3px solid var(--purple)">
+                <h3><span class="icon-circle ic-purple">📐</span> Structure d'une User Story</h3>
+                <div
+                    style="background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(99,102,241,.08));padding:1.5rem;border-radius:8px;margin-top:.8rem">
+                    <div class="story-line">
+                        <span class="story-keyword" style="background:var(--blue-bg);color:var(--blue)">En tant
+                            que</span>
+                        <span style="color:var(--text)">[rôle / utilisateur]</span>
+                    </div>
+                    <div class="story-line">
+                        <span class="story-keyword" style="background:var(--green-bg);color:var(--green)">Je veux</span>
+                        <span style="color:var(--text)">[fonctionnalité / action]</span>
+                    </div>
+                    <div class="story-line">
+                        <span class="story-keyword" style="background:var(--purple-bg);color:var(--purple)">Afin
+                            de</span>
+                        <span style="color:var(--text)">[objectif / valeur business]</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exemples -->
+            <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:1.2rem;color:var(--orange)">📌 Exemples concrets
+            </h3>
+            <div class="grid-2">
+                <div class="story-card">
+                    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem">
+                        <span class="tag tag-blue" style="font-size:.85rem">User Story 1</span>
+                    </div>
+                    <div class="story-line">
+                        <span class="story-keyword" style="background:var(--blue-bg);color:var(--blue)">En tant
+                            que</span>
+                        <span style="color:var(--text);font-weight:600">Directeur RH</span>
+                    </div>
+                    <div class="story-line">
+                        <span class="story-keyword" style="background:var(--green-bg);color:var(--green)">Je veux</span>
+                        <span style="color:var(--text)">être capable de gérer mes salariés</span>
+                    </div>
+                    <div class="story-line">
+                        <span class="story-keyword" style="background:var(--purple-bg);color:var(--purple)">Afin
+                            de</span>
+                        <span style="color:var(--text)">garantir une meilleure organisation au sein de
+                            l'entreprise</span>
+                    </div>
+                </div>
+
+                <div class="story-card">
+                    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem">
+                        <span class="tag tag-green" style="font-size:.85rem">User Story 2</span>
+                    </div>
+                    <div class="story-line">
+                        <span class="story-keyword" style="background:var(--blue-bg);color:var(--blue)">En tant
+                            que</span>
+                        <span style="color:var(--text);font-weight:600">Salarié</span>
+                    </div>
+                    <div class="story-line">
+                        <span class="story-keyword" style="background:var(--green-bg);color:var(--green)">Je veux</span>
+                        <span style="color:var(--text)">être capable de demander des formations en ligne</span>
+                    </div>
+                    <div class="story-line">
+                        <span class="story-keyword" style="background:var(--purple-bg);color:var(--purple)">Afin
+                            de</span>
+                        <span style="color:var(--text)">garantir la traçabilité de l'opération et gagner du temps</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout callout-purple fade-in" style="margin-top:1.5rem">
+                👉 Les User Stories sont ensuite <strong>transformées en tâches</strong> et <strong>classées par
+                    priorité</strong> dans le Product Backlog.
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. RÉSUMÉ -->
+    <section id="resume">
+        <div class="container fade-in">
+            <span class="section-label label-green">🎯 Conclusion</span>
+            <h2 class="section-title">Résumé — Scrum en un coup d'œil</h2>
+            <p class="section-desc">Les piliers fondamentaux du framework Scrum.</p>
+
+            <!-- Stats -->
+            <div class="grid-3" style="margin-bottom:2rem">
+                <div class="card stat-box" style="border-top:3px solid var(--purple)">
+                    <div class="stat-number"
+                        style="background:linear-gradient(135deg,var(--purple),var(--accent-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                        3</div>
+                    <div class="stat-label"><strong>Rôles</strong></div>
+                    <div style="display:flex;gap:.4rem;justify-content:center;margin-top:.8rem;flex-wrap:wrap">
+                        <span class="tag tag-blue">PO</span>
+                        <span class="tag tag-green">Équipe</span>
+                        <span class="tag tag-purple">SM</span>
+                    </div>
+                </div>
+                <div class="card stat-box" style="border-top:3px solid var(--blue)">
+                    <div class="stat-number"
+                        style="background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                        4</div>
+                    <div class="stat-label"><strong>Cérémonies</strong></div>
+                    <div style="display:flex;gap:.4rem;justify-content:center;margin-top:.8rem;flex-wrap:wrap">
+                        <span class="tag tag-blue">Planning</span>
+                        <span class="tag tag-green">Daily</span>
+                        <span class="tag tag-yellow">Review</span>
+                        <span class="tag tag-purple">Rétro</span>
+                    </div>
+                </div>
+                <div class="card stat-box" style="border-top:3px solid var(--green)">
+                    <div class="stat-number"
+                        style="background:linear-gradient(135deg,var(--green),var(--yellow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                        3</div>
+                    <div class="stat-label"><strong>Artefacts</strong></div>
+                    <div style="display:flex;gap:.4rem;justify-content:center;margin-top:.8rem;flex-wrap:wrap">
+                        <span class="tag tag-blue">Product BL</span>
+                        <span class="tag tag-green">Sprint BL</span>
+                        <span class="tag tag-purple">Burndown</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrum Cycle -->
+            <div class="cycle-container fade-in">
+                <h3 style="margin-bottom:1.5rem;font-size:1.15rem">🔄 Le Cycle Scrum — Inspection & Adaptation Continue
+                </h3>
+                <svg width="700" height="200" viewBox="0 0 700 200" style="max-width:100%">
+                    <!-- Sprint boxes -->
+                    <rect x="10" y="50" width="120" height="100" rx="10" fill="var(--blue-bg)" stroke="var(--blue)"
+                        stroke-width="1.5" />
+                    <text x="70" y="80" text-anchor="middle" fill="var(--blue)" font-size="11" font-weight="700">📋
+                        Sprint</text>
+                    <text x="70" y="95" text-anchor="middle" fill="var(--blue)" font-size="11"
+                        font-weight="700">Planning</text>
+                    <text x="70" y="115" text-anchor="middle" fill="var(--text-dim)" font-size="9">Objectif +
+                        Stories</text>
+                    <text x="70" y="130" text-anchor="middle" fill="var(--text-dim)" font-size="9">Tâches +
+                        Estimation</text>
+
+                    <text x="155" y="105" text-anchor="middle" fill="var(--accent-light)" font-size="18"
+                        font-weight="800">→</text>
+
+                    <rect x="175" y="50" width="120" height="100" rx="10" fill="var(--green-bg)" stroke="var(--green)"
+                        stroke-width="1.5" />
+                    <text x="235" y="80" text-anchor="middle" fill="var(--green)" font-size="11" font-weight="700">⏰
+                        Daily</text>
+                    <text x="235" y="95" text-anchor="middle" fill="var(--green)" font-size="11"
+                        font-weight="700">Scrum</text>
+                    <text x="235" y="115" text-anchor="middle" fill="var(--text-dim)" font-size="9">15 min / jour</text>
+                    <text x="235" y="130" text-anchor="middle" fill="var(--text-dim)" font-size="9">3 questions</text>
+
+                    <text x="320" y="105" text-anchor="middle" fill="var(--accent-light)" font-size="18"
+                        font-weight="800">→</text>
+
+                    <rect x="340" y="50" width="120" height="100" rx="10" fill="var(--yellow-bg)" stroke="var(--yellow)"
+                        stroke-width="1.5" />
+                    <text x="400" y="80" text-anchor="middle" fill="var(--yellow)" font-size="11" font-weight="700">🖥️
+                        Sprint</text>
+                    <text x="400" y="95" text-anchor="middle" fill="var(--yellow)" font-size="11"
+                        font-weight="700">Review</text>
+                    <text x="400" y="115" text-anchor="middle" fill="var(--text-dim)" font-size="9">Démonstration</text>
+                    <text x="400" y="130" text-anchor="middle" fill="var(--text-dim)" font-size="9">Validation PO</text>
+
+                    <text x="485" y="105" text-anchor="middle" fill="var(--accent-light)" font-size="18"
+                        font-weight="800">→</text>
+
+                    <rect x="505" y="50" width="120" height="100" rx="10" fill="var(--purple-bg)" stroke="var(--purple)"
+                        stroke-width="1.5" />
+                    <text x="565" y="80" text-anchor="middle" fill="var(--purple)" font-size="11" font-weight="700">🔁
+                        Rétro-</text>
+                    <text x="565" y="95" text-anchor="middle" fill="var(--purple)" font-size="11"
+                        font-weight="700">spective</text>
+                    <text x="565" y="115" text-anchor="middle" fill="var(--text-dim)" font-size="9">Amélioration</text>
+                    <text x="565" y="130" text-anchor="middle" fill="var(--text-dim)" font-size="9">Plan d'action</text>
+
+                    <!-- Cycle arrow back -->
+                    <path d="M 625 155 Q 660 180 660 100 Q 660 20 350 20 Q 40 20 40 45" fill="none"
+                        stroke="var(--accent-light)" stroke-width="1.5" stroke-dasharray="5,3"
+                        marker-end="url(#cycleArr)" />
+                    <defs>
+                        <marker id="cycleArr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="var(--accent-light)" />
+                        </marker>
+                    </defs>
+                    <text x="350" y="15" text-anchor="middle" fill="var(--accent-light)" font-size="9"
+                        font-weight="600">🔄 Sprint suivant</text>
+                </svg>
+            </div>
+
+            <div class="callout callout-green fade-in" style="margin-top:1.5rem">
+                🎯 <strong>Scrum repose sur l'inspection et l'adaptation continue.</strong> Chaque sprint est une
+                opportunité d'améliorer le produit ET le processus de travail.
+            </div>
+        </div>
+    </section>
+
+    <!-- NAV LINKS -->
+    <section style="padding:3rem 0">
+        <div class="container fade-in">
+            <div class="grid-2">
+                <a href="2.%20Approche%20agile_Préparer%20un%20projet.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;gap:1rem;border:1px solid rgba(99,102,241,.3);background:linear-gradient(135deg,var(--card),rgba(99,102,241,.08));cursor:pointer">
+                        <div style="font-size:1.5rem;color:var(--accent-light)">←</div>
+                        <div>
+                            <span class="section-label label-blue" style="margin-bottom:.3rem;font-size:.65rem">Chapitre
+                                précédent</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">PERT & GANTT</h3>
+                        </div>
+                    </div>
+                </a>
+                <a href="4.%20Approche%20agile_Manipuler%20JIRA.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:flex-end;gap:1rem;border:1px solid rgba(59,130,246,.3);background:linear-gradient(135deg,var(--card),rgba(59,130,246,.08));cursor:pointer;text-align:right">
+                        <div>
+                            <span class="section-label label-blue" style="margin-bottom:.3rem;font-size:.65rem">Chapitre
+                                suivant</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">Manipuler JIRA</h3>
+                        </div>
+                        <div style="font-size:1.5rem;color:var(--blue)">→</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>📘 Module Approche Agile — Chapitre 3 : SCRUM | Stagiaire : Youssef NAJIMI | DEVOWFS</p>
+        <p style="margin-top:.5rem"><a href="1.%20Approche%20agile_Introduction.html">← Retour au module principal</a>
+        </p>
+    </footer>
+
+    <script>
+        const obs = new IntersectionObserver(e => { e.forEach(e => { e.isIntersecting && e.target.classList.add('visible') }) }, { threshold: .1 });
+        document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    </script>
+</body>
+
+</html>

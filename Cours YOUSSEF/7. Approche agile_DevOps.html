@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>DevOps & GitLab CI/CD — Module Agile</title>
+    <meta name="description" content="Chapitre 7 : Introduction DevOps, CI/CD, outils, pipelines GitLab et runners">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --card: #16161f;
+            --card-hover: #1c1c28;
+            --border: #1e1e2e;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #475569;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, .08);
+            --blue: #3b82f6;
+            --green: #10b981;
+            --purple: #a855f7;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --orange: #f97316;
+            --cyan: #06b6d4;
+            --teal: #14b8a6;
+            --blue-bg: rgba(59, 130, 246, .1);
+            --green-bg: rgba(16, 185, 129, .1);
+            --purple-bg: rgba(168, 85, 247, .1);
+            --yellow-bg: rgba(234, 179, 8, .1);
+            --red-bg: rgba(239, 68, 68, .1);
+            --orange-bg: rgba(249, 115, 22, .1);
+            --cyan-bg: rgba(6, 182, 212, .1);
+            --teal-bg: rgba(20, 184, 166, .1);
+            --radius: 12px;
+            --transition: .3s ease
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 15, .85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            padding: .8rem 0
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .nav-logo {
+            font-weight: 900;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: .85rem;
+            font-weight: 500;
+            transition: color var(--transition)
+        }
+
+        .nav-links a:hover {
+            color: var(--cyan)
+        }
+
+        .nav-select {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .15), rgba(168, 85, 247, .15));
+            color: var(--accent-light);
+            border: 1px solid rgba(99, 102, 241, .35);
+            border-radius: 8px;
+            padding: .4rem .8rem .4rem .6rem;
+            font-family: 'Inter', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all .3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23818cf8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .6rem center;
+            padding-right: 1.8rem
+        }
+
+        .nav-select:hover {
+            border-color: var(--accent-light);
+            background: linear-gradient(135deg, rgba(99, 102, 241, .25), rgba(168, 85, 247, .25))
+        }
+
+        .nav-select option {
+            background: var(--surface);
+            color: var(--text);
+            padding: .5rem
+        }
+
+        .hero {
+            text-align: center;
+            padding: 10rem 2rem 4rem;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(6, 182, 212, .12), transparent 70%);
+            pointer-events: none
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--cyan-bg);
+            border: 1px solid rgba(6, 182, 212, .3);
+            color: var(--cyan);
+            padding: .4rem 1.2rem;
+            border-radius: 20px;
+            font-size: .82rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 1rem
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem
+        }
+
+        section {
+            padding: 4rem 0
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: .3rem .8rem;
+            border-radius: 6px;
+            margin-bottom: .8rem
+        }
+
+        .label-teal {
+            background: var(--teal-bg);
+            color: var(--teal)
+        }
+
+        .label-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .label-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .label-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .label-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .label-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .label-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .label-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: .5rem
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            max-width: 700px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            transition: all var(--transition)
+        }
+
+        .card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(6, 182, 212, .08)
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: .6rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .card p,
+        .card li {
+            color: var(--text-muted);
+            font-size: .92rem
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0
+        }
+
+        .card ul li {
+            padding: .3rem 0;
+            padding-left: 1.4rem;
+            position: relative
+        }
+
+        .card ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--cyan)
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem
+        }
+
+        .icon-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0
+        }
+
+        .ic-teal {
+            background: var(--teal-bg);
+            color: var(--teal)
+        }
+
+        .ic-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .ic-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .ic-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .ic-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .ic-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .ic-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .ic-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .tag {
+            display: inline-block;
+            padding: .25rem .7rem;
+            border-radius: 6px;
+            font-size: .78rem;
+            font-weight: 600
+        }
+
+        .tag-teal {
+            background: var(--teal-bg);
+            color: var(--teal)
+        }
+
+        .tag-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .tag-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .tag-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .tag-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .tag-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .tag-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .tag-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .callout {
+            border-left: 3px solid var(--cyan);
+            background: var(--cyan-bg);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            margin: 1.5rem 0;
+            font-size: .92rem
+        }
+
+        .callout-green {
+            border-left-color: var(--green);
+            background: var(--green-bg)
+        }
+
+        .callout-yellow {
+            border-left-color: var(--yellow);
+            background: var(--yellow-bg)
+        }
+
+        .callout-red {
+            border-left-color: var(--red);
+            background: var(--red-bg)
+        }
+
+        .callout-blue {
+            border-left-color: var(--blue);
+            background: var(--blue-bg)
+        }
+
+        .callout-purple {
+            border-left-color: var(--purple);
+            background: var(--purple-bg)
+        }
+
+        .callout-orange {
+            border-left-color: var(--orange);
+            background: var(--orange-bg)
+        }
+
+        code,
+        .cmd {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(6, 182, 212, .12);
+            color: var(--cyan);
+            padding: .15rem .5rem;
+            border-radius: 5px;
+            font-size: .82rem;
+            font-weight: 600
+        }
+
+        .cmd-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .82rem;
+            color: var(--green);
+            margin: .8rem 0;
+            overflow-x: auto;
+            line-height: 1.8
+        }
+
+        .cmd-block .comment {
+            color: var(--text-dim)
+        }
+
+        .styled-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border)
+        }
+
+        .styled-table thead {
+            background: linear-gradient(135deg, var(--cyan), #0891b2)
+        }
+
+        .styled-table th {
+            padding: .9rem 1.2rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: .85rem;
+            color: #fff;
+            letter-spacing: .5px
+        }
+
+        .styled-table td {
+            padding: .8rem 1.2rem;
+            font-size: .85rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none
+        }
+
+        .styled-table tbody tr {
+            background: var(--card);
+            transition: background var(--transition)
+        }
+
+        .styled-table tbody tr:hover {
+            background: var(--card-hover)
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: #fff;
+            font-size: .8rem;
+            font-weight: 800;
+            flex-shrink: 0
+        }
+
+        .wf-step {
+            padding: .6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: .85rem
+        }
+
+        .wf-arrow {
+            color: var(--text-dim);
+            font-size: 1.3rem;
+            font-weight: 800
+        }
+
+        .infinity-loop {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin: 1rem 0
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: .85rem;
+            margin-top: 4rem
+        }
+
+        footer a {
+            color: var(--cyan);
+            text-decoration: none
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 3rem
+            }
+
+            .section-title {
+                font-size: 1.5rem
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .6s ease, transform .6s ease
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-logo">📘 Gestion de Projet</div>
+            <ul class="nav-links">
+                <li><a href="1.%20Approche%20agile_Introduction.html">← Retour</a></li>
+                <li><a href="#devops">DevOps</a></li>
+                <li><a href="#ci">CI/CD</a></li>
+                <li><a href="#outils">Outils</a></li>
+                <li><a href="#gitlab">GitLab</a></li>
+                <li><a href="#pipeline">Pipeline</a></li>
+                <li><a href="#runner">Runner</a></li>
+                <li>
+                    <select class="nav-select" onchange="if(this.value)window.location.href=this.value">
+                        <option value="">📚 Chapitres</option>
+                        <option value="1.%20Approche%20agile_Introduction.html">📖 Introduction</option>
+                        <option value="2.%20Approche%20agile_Préparer%20un%20projet.html">📊 PERT & Gantt</option>
+                        <option value="3.%20Approche%20agile_SCRUM.html">🔄 Scrum</option>
+                        <option value="4.%20Approche%20agile_Manipuler%20JIRA.html">🔧 Jira</option>
+                        <option value="5.%20Approche%20Agile_gestion%20de%20version%20et%20qualité%20du%20code.html">🔀
+                            Git & SonarQube</option>
+                        <option value="6.%20Approche%20Agile_tests%20unitaires%20et%20couverture%20de%20code.html">🧪
+                            Tests Unitaires</option>
+                        <option value="7.%20Approche%20agile_DevOps.html">🔄 DevOps & CI/CD</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="hero-badge">📌 Chapitre 7 — Module Approche Agile</div>
+        <h1>DevOps & <span>GitLab CI/CD</span></h1>
+        <p>Automatisation de la chaîne de production, pipelines CI/CD, runners et déploiement continu.</p>
+        <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1rem">
+            <span class="tag tag-cyan">🔄 DevOps</span>
+            <span class="tag tag-blue">🚀 CI/CD</span>
+            <span class="tag tag-purple">🔀 GitLab</span>
+            <span class="tag tag-green">📦 Pipeline</span>
+            <span class="tag tag-orange">⚙️ Runner</span>
+            <span class="tag tag-yellow">🐳 Docker</span>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- CHAPTER 1: INTRODUCTION TO DEVOPS  -->
+    <!-- ═══════════════════════════════════ -->
+
+    <section style="padding:2rem 0 0">
+        <div class="container">
+            <div
+                style="background:linear-gradient(135deg,rgba(6,182,212,.08),rgba(59,130,246,.05));border:1px solid rgba(6,182,212,.2);border-radius:var(--radius);padding:1.5rem 2rem;text-align:center">
+                <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:.3rem">📘 Chapitre 1 — Introduire la Chaîne
+                    DevOps</h2>
+                <p style="color:var(--text-muted);font-size:.9rem">Définition, avantages, outils et concepts
+                    fondamentaux</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 1. WHY DEVOPS -->
+    <section id="devops">
+        <div class="container fade-in">
+            <span class="section-label label-cyan">📌 Section 1</span>
+            <h2 class="section-title">🔄 Pourquoi DevOps ?</h2>
+            <p class="section-desc">Les entreprises doivent s'adapter en continu et livrer plus rapidement.</p>
+            <div class="grid-3" style="margin-bottom:1.5rem">
+                <div class="card" style="text-align:center;border-top:3px solid var(--cyan)"><span
+                        style="font-size:1.5rem">🏢</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Adaptation continue</h3>
+                    <p style="font-size:.8rem">Les entreprises doivent évoluer constamment</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--blue)"><span
+                        style="font-size:1.5rem">🔄</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Évolution fréquente</h3>
+                    <p style="font-size:.8rem">Les applications doivent être mises à jour régulièrement</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--green)"><span
+                        style="font-size:1.5rem">⚡</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Automatisation</h3>
+                    <p style="font-size:.8rem">Automatiser la chaîne de production</p>
+                </div>
+            </div>
+            <div class="callout fade-in">🚀 Selon <strong>ZDNet</strong>, le DevOps permet une livraison logicielle
+                <strong>2x plus rapide</strong>, notamment pendant la pandémie.
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. DEFINITION -->
+    <section id="definition">
+        <div class="container fade-in">
+            <span class="section-label label-blue">📌 Section 2</span>
+            <h2 class="section-title">📖 Définition de DevOps</h2>
+            <p class="section-desc">DevOps = Development + Operations — une méthodologie et une culture.</p>
+            <div class="grid-2" style="margin-bottom:1.5rem">
+                <div class="card" style="border-left:3px solid var(--cyan)">
+                    <h3><span class="icon-circle ic-cyan">🔗</span> DevOps unifie</h3>
+                    <ul>
+                        <li>Développement et production</li>
+                        <li>Tests, intégration, déploiement automatisés</li>
+                        <li>Communication entre Dev & Ops</li>
+                        <li>Méthodologie <strong>et</strong> culture</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--purple)">
+                    <h3><span class="icon-circle ic-purple">♾️</span> Cycle de Vie DevOps</h3>
+                    <div class="infinity-loop">
+                        <div class="wf-step" style="background:var(--blue-bg);color:var(--blue)">📝 Plan</div>
+                        <div class="wf-arrow">→</div>
+                        <div class="wf-step" style="background:var(--purple-bg);color:var(--purple)">💻 Develop</div>
+                        <div class="wf-arrow">→</div>
+                        <div class="wf-step" style="background:var(--green-bg);color:var(--green)">🧪 Test</div>
+                        <div class="wf-arrow">→</div>
+                        <div class="wf-step" style="background:var(--cyan-bg);color:var(--cyan)">🔗 Integrate</div>
+                        <div class="wf-arrow">→</div>
+                        <div class="wf-step" style="background:var(--orange-bg);color:var(--orange)">🚀 Deploy</div>
+                        <div class="wf-arrow">→</div>
+                        <div class="wf-step" style="background:var(--yellow-bg);color:var(--yellow)">📊 Monitor</div>
+                        <div class="wf-arrow">→</div>
+                        <div class="wf-step" style="background:var(--teal-bg);color:var(--teal)">🔄 Repeat</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. CI / CD / IaC -->
+    <section id="ci">
+        <div class="container fade-in">
+            <span class="section-label label-green">📌 Section 3</span>
+            <h2 class="section-title">🎯 3 Axes Stratégiques du DevOps</h2>
+            <p class="section-desc">Intégration continue, déploiement continu et Infrastructure as Code.</p>
+            <div class="grid-3">
+                <div class="card" style="border-top:3px solid var(--green)">
+                    <h3><span class="icon-circle ic-green">🔄</span> CI — Intégration Continue</h3>
+                    <ul>
+                        <li>Changements poussés fréquemment</li>
+                        <li>Tests automatisés exécutés</li>
+                        <li>Échec → livraison rejetée</li>
+                        <li>Succès → code intégré</li>
+                    </ul>
+                    <p style="margin-top:.8rem;font-size:.82rem"><strong>Types de tests :</strong> Fonctionnel,
+                        Technique, Qualité, Sécurité, Performance, UX</p>
+                </div>
+                <div class="card" style="border-top:3px solid var(--blue)">
+                    <h3><span class="icon-circle ic-blue">🚀</span> CD — Déploiement Continu</h3>
+                    <ul>
+                        <li>Déploiement automatisé</li>
+                        <li>Infrastructure & sécurité gérées</li>
+                        <li>Backup & rollback supportés</li>
+                        <li>Cache & performance optimisés</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-top:3px solid var(--purple)">
+                    <h3><span class="icon-circle ic-purple">🏗️</span> IaC — Infrastructure as Code</h3>
+                    <ul>
+                        <li>Infrastructure <strong>scriptée</strong></li>
+                        <li>Versionnée & reproductible</li>
+                        <li>Auto-scaling automatique</li>
+                        <li>Environnements reproductibles</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. ADVANTAGES -->
+    <section id="avantages">
+        <div class="container fade-in">
+            <span class="section-label label-teal">📌 Section 4</span>
+            <h2 class="section-title">✅ Avantages du DevOps</h2>
+            <p class="section-desc">Les bénéfices clés de l'adoption DevOps dans une organisation.</p>
+            <div class="grid-4">
+                <div class="card" style="text-align:center;border-top:3px solid var(--green)"><span
+                        style="font-size:1.3rem">🤝</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Collaboration</h3>
+                    <p style="font-size:.8rem">Meilleure synergie Dev & Ops</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--cyan)"><span
+                        style="font-size:1.3rem">⚡</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Time-to-Market</h3>
+                    <p style="font-size:.8rem">Livraison plus rapide</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--blue)"><span
+                        style="font-size:1.3rem">🔄</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Agilité accrue</h3>
+                    <p style="font-size:.8rem">Adaptation aux changements</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--purple)"><span
+                        style="font-size:1.3rem">😊</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Satisfaction client</h3>
+                    <p style="font-size:.8rem">Clients plus satisfaits</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--yellow)"><span
+                        style="font-size:1.3rem">💡</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Innovation</h3>
+                    <p style="font-size:.8rem">Plus d'innovation</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--red)"><span
+                        style="font-size:1.3rem">🛡️</span>
+                    <h3 style="justify-content:center;font-size:.85rem">DevSecOps</h3>
+                    <p style="font-size:.8rem">Sécurité intégrée</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--orange)"><span
+                        style="font-size:1.3rem">📉</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Moins d'échecs</h3>
+                    <p style="font-size:.8rem">Déploiements fiables</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--teal)"><span
+                        style="font-size:1.3rem">🔧</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Récupération rapide</h3>
+                    <p style="font-size:.8rem">Recovery time réduit</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. TOOLS -->
+    <section id="outils">
+        <div class="container fade-in">
+            <span class="section-label label-orange">📌 Section 5</span>
+            <h2 class="section-title">🛠️ Outils DevOps</h2>
+            <p class="section-desc">L'écosystème d'outils utilisés dans la chaîne DevOps.</p>
+            <div class="grid-3" style="margin-bottom:1.5rem">
+                <div class="card" style="border-left:3px solid var(--cyan)">
+                    <h3><span class="icon-circle ic-cyan">📂</span> Gestion de Code</h3>
+                    <ul>
+                        <li>Git</li>
+                        <li>GitHub</li>
+                        <li>GitLab</li>
+                        <li>Bitbucket</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--green)">
+                    <h3><span class="icon-circle ic-green">🔄</span> CI/CD</h3>
+                    <ul>
+                        <li>Jenkins</li>
+                        <li>GitLab CI</li>
+                        <li>Bamboo / TeamCity</li>
+                        <li>CircleCI / Travis CI</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--blue)">
+                    <h3><span class="icon-circle ic-blue">🐳</span> Conteneurs</h3>
+                    <ul>
+                        <li>Docker</li>
+                        <li>Kubernetes</li>
+                        <li>Docker Swarm</li>
+                        <li>MesOS</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--purple)">
+                    <h3><span class="icon-circle ic-purple">☁️</span> Cloud Providers</h3>
+                    <ul>
+                        <li>AWS</li>
+                        <li>Microsoft Azure</li>
+                        <li>Google Cloud Platform</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--orange)">
+                    <h3><span class="icon-circle ic-orange">⚙️</span> Automatisation</h3>
+                    <ul>
+                        <li>Terraform</li>
+                        <li>Ansible</li>
+                        <li>Puppet</li>
+                        <li>SaltStack</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--yellow)">
+                    <h3><span class="icon-circle ic-yellow">📊</span> Monitoring</h3>
+                    <ul>
+                        <li>Prometheus</li>
+                        <li>Grafana</li>
+                        <li>ELK Stack</li>
+                        <li>Jira / Trello</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. DEVOPS VS AGILE -->
+    <section id="agile-vs-devops">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 6</span>
+            <h2 class="section-title">⚡ DevOps vs Agile</h2>
+            <p class="section-desc">Le DevOps étend l'Agile en incluant les opérations.</p>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Critère</th>
+                        <th>Agile</th>
+                        <th>DevOps</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Focus</strong></td>
+                        <td>Développement</td>
+                        <td>Développement + Opérations</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Collaboration</strong></td>
+                        <td>Client & développeurs</td>
+                        <td>Dev, Ops, QA, Sécurité</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Méthode</strong></td>
+                        <td>Sprints</td>
+                        <td>CI/CD automatisé</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Automatisation</strong></td>
+                        <td>Limitée</td>
+                        <td>Complète</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Infrastructure</strong></td>
+                        <td>Non concerné</td>
+                        <td>Infrastructure as Code</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Déploiement</strong></td>
+                        <td>Manuel</td>
+                        <td>Automatisé & fiable</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout callout-blue fade-in" style="margin-top:1.5rem">💡 <strong>DevOps étend Agile</strong> :
+                l'Agile améliore le développement, le DevOps automatise le chemin jusqu'à la production.</div>
+        </div>
+    </section>
+
+    <!-- 7. CI vs CD -->
+    <section id="ci-vs-cd">
+        <div class="container fade-in">
+            <span class="section-label label-yellow">📌 Section 7</span>
+            <h2 class="section-title">🔀 CI vs Continuous Delivery vs Continuous Deployment</h2>
+            <p class="section-desc">Trois niveaux d'automatisation dans la chaîne DevOps.</p>
+            <div class="grid-3">
+                <div class="card" style="border-top:3px solid var(--green)">
+                    <h3><span class="icon-circle ic-green">🔄</span> Continuous Integration</h3>
+                    <ul>
+                        <li>Code poussé au repository</li>
+                        <li>Build + tests automatiques</li>
+                        <li>Détection précoce des bugs</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-top:3px solid var(--blue)">
+                    <h3><span class="icon-circle ic-blue">📦</span> Continuous Delivery</h3>
+                    <ul>
+                        <li>Code préparé pour la production</li>
+                        <li>Approbation <strong>manuelle</strong> requise</li>
+                        <li>Release contrôlée</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-top:3px solid var(--purple)">
+                    <h3><span class="icon-circle ic-purple">🚀</span> Continuous Deployment</h3>
+                    <ul>
+                        <li>Déploiement <strong>100% automatisé</strong></li>
+                        <li>Aucune approbation manuelle</li>
+                        <li>En production immédiatement</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- CHAPTER 2: GITLAB CI/CD            -->
+    <!-- ═══════════════════════════════════ -->
+
+    <section style="padding:3rem 0 0">
+        <div class="container">
+            <div
+                style="background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(99,102,241,.05));border:1px solid rgba(168,85,247,.2);border-radius:var(--radius);padding:1.5rem 2rem;text-align:center">
+                <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:.3rem">📘 Chapitre 2 — GitLab CI/CD</h2>
+                <p style="color:var(--text-muted);font-size:.9rem">Pipelines, stages, jobs, runners et configuration</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. GITLAB CI/CD -->
+    <section id="gitlab">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 8</span>
+            <h2 class="section-title">🔀 GitLab CI/CD</h2>
+            <p class="section-desc">GitLab automatise le build, les tests et le déploiement via des pipelines.</p>
+            <div class="grid-2" style="margin-bottom:1.5rem">
+                <div class="card" style="border-left:3px solid var(--purple)">
+                    <h3><span class="icon-circle ic-purple">🔀</span> GitLab CI/CD</h3>
+                    <ul>
+                        <li>Automatise build, test, deploy</li>
+                        <li>Utilise des <strong>pipelines</strong></li>
+                        <li>Exécuté par des <strong>runners</strong></li>
+                        <li>Configuré via <code>.gitlab-ci.yml</code></li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--cyan)">
+                    <h3><span class="icon-circle ic-cyan">📋</span> Prérequis</h3>
+                    <ul>
+                        <li>Un compte sur GitLab.com</li>
+                        <li>Un repository Git (projet)</li>
+                        <li>Fichier <code>.gitlab-ci.yml</code> à la racine</li>
+                        <li>Un runner configuré</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. PIPELINE -->
+    <section id="pipeline">
+        <div class="container fade-in">
+            <span class="section-label label-blue">📌 Section 9</span>
+            <h2 class="section-title">🔗 Architecture d'un Pipeline</h2>
+            <p class="section-desc">Un pipeline est une séquence d'étapes automatisées, déclenchée à chaque push.</p>
+            <div class="card fade-in" style="border-left:3px solid var(--blue);margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-blue">🔗</span> Flux du Pipeline</h3>
+                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:.8rem 0">
+                    <div class="wf-step" style="background:var(--blue-bg);color:var(--blue)">🔨 Build</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--green-bg);color:var(--green)">🧪 Test</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--orange-bg);color:var(--orange)">🚀 Deploy</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--teal-bg);color:var(--teal)">✅ Validate</div>
+                </div>
+            </div>
+            <div class="grid-3 fade-in" style="margin-bottom:1.5rem">
+                <div class="card" style="text-align:center;border-top:3px solid var(--blue)">
+                    <div class="step-number" style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem">1</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Pipeline</h3>
+                    <p style="font-size:.82rem">Processus de haut niveau</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--green)">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--green),var(--teal))">
+                        2</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Stages</h3>
+                    <p style="font-size:.82rem">Groupes de jobs (séquentiels)</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--purple)">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--purple),var(--accent))">
+                        3</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Jobs</h3>
+                    <p style="font-size:.82rem">Tâches exécutées dans les stages</p>
+                </div>
+            </div>
+            <div class="grid-2 fade-in">
+                <div class="card" style="border-left:3px solid var(--orange)">
+                    <h3><span class="icon-circle ic-orange">⚙️</span> Runner</h3>
+                    <p>Application qui <strong>exécute</strong> les jobs du pipeline (peut être local, VM, container).
+                    </p>
+                </div>
+                <div class="card" style="border-left:3px solid var(--yellow)">
+                    <h3><span class="icon-circle ic-yellow">📄</span> Artifacts</h3>
+                    <p>Fichiers générés par les jobs (rapports de couverture, logs, résultats de tests).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. GITLAB-CI.YML -->
+    <section id="yml">
+        <div class="container fade-in">
+            <span class="section-label label-cyan">📌 Section 10</span>
+            <h2 class="section-title">📝 Fichier .gitlab-ci.yml</h2>
+            <p class="section-desc">Configuration du pipeline CI/CD, placé à la racine du projet.</p>
+            <div class="card" style="border-left:3px solid var(--cyan);margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-cyan">📝</span> Exemple de base</h3>
+                <div class="cmd-block" style="color:var(--text)"><span class="comment"># Définition des étapes</span>
+                    <span style="color:var(--cyan)">stages</span>:
+                    - <span style="color:var(--green)">build</span>
+                    - <span style="color:var(--green)">test</span>
+
+                    <span class="comment"># Job de build</span>
+                    <span style="color:var(--yellow)">build-job</span>:
+                    <span style="color:var(--cyan)">stage</span>: build
+                    <span style="color:var(--cyan)">script</span>:
+                    - echo <span style="color:var(--green)">"Compiling the code..."</span>
+                    - echo <span style="color:var(--green)">"Compile complete."</span>
+
+                    <span class="comment"># Job de tests</span>
+                    <span style="color:var(--yellow)">unit-test-job</span>:
+                    <span style="color:var(--cyan)">stage</span>: test
+                    <span style="color:var(--cyan)">script</span>:
+                    - vendor/bin/phpunit tests
+                    - echo <span style="color:var(--green)">"tests terminés"</span>
+                </div>
+            </div>
+            <div class="callout fade-in">📌 GitLab détecte automatiquement le fichier <code>.gitlab-ci.yml</code> à la
+                racine et exécute le pipeline à chaque <strong>commit</strong>.</div>
+        </div>
+    </section>
+
+    <!-- 11. RUNNER -->
+    <section id="runner">
+        <div class="container fade-in">
+            <span class="section-label label-orange">📌 Section 11</span>
+            <h2 class="section-title">⚙️ GitLab Runner</h2>
+            <p class="section-desc">Programme qui exécute les jobs du pipeline CI/CD.</p>
+            <div class="grid-2" style="margin-bottom:1.5rem">
+                <div class="card" style="border-left:3px solid var(--orange)">
+                    <h3><span class="icon-circle ic-orange">⚙️</span> Qu'est-ce qu'un Runner ?</h3>
+                    <ul>
+                        <li>Composant qui exécute les tâches CI/CD</li>
+                        <li>Développé en <strong>Go</strong></li>
+                        <li>Installable sur serveur, VM, container</li>
+                        <li>Reste en écoute du GitLab pour les tâches</li>
+                        <li>Peut être <strong>partagé</strong> ou <strong>spécifique</strong></li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--blue)">
+                    <h3><span class="icon-circle ic-blue">🖥️</span> Installation Windows</h3>
+                    <div class="cmd-block"><span class="comment"># 1. Télécharger gitlab-runner.exe</span>
+                        <span class="comment"># 2. Placer dans C:/Gitlab-Runner</span>
+                        <span class="comment"># 3. En tant qu'Administrateur :</span>
+
+                        .\gitlab-runner.exe install
+                        .\gitlab-runner.exe start
+                        .\gitlab-runner.exe register
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in" style="border-left:3px solid var(--green)">
+                <h3><span class="icon-circle ic-green">▶️</span> Démarrer le Pipeline</h3>
+                <div class="cmd-block"><span class="comment"># Lancer le runner</span>
+                    gitlab-runner.exe run
+
+                    <span class="comment"># Dans GitLab : CI/CD → Pipelines → "Run pipeline"</span>
+                </div>
+                <p style="margin-top:.8rem;font-size:.85rem">L'état d'exécution est visible dans le menu <strong>CI/CD →
+                        Pipelines</strong> de GitLab.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 12. ADVANCED PIPELINE -->
+    <section id="advanced">
+        <div class="container fade-in">
+            <span class="section-label label-red">📌 Section 12</span>
+            <h2 class="section-title">🔥 Pipeline Avancé</h2>
+            <p class="section-desc">Pipeline avec couverture de code et intégration SonarQube.</p>
+            <div class="card" style="border-left:3px solid var(--red)">
+                <h3><span class="icon-circle ic-red">🔥</span> Pipeline complet avec 3 étapes</h3>
+                <div class="cmd-block" style="color:var(--text)"><span style="color:var(--cyan)">stages</span>:
+                    - <span style="color:var(--green)">creation</span>
+                    - <span style="color:var(--green)">test</span>
+                    - <span style="color:var(--green)">code_quality</span>
+
+                    <span style="color:var(--yellow)">build-job</span>:
+                    <span style="color:var(--cyan)">stage</span>: creation
+                    <span style="color:var(--cyan)">script</span>:
+                    - echo <span style="color:var(--green)">"Démarrage..."</span>
+
+                    <span style="color:var(--yellow)">unit-test-job</span>:
+                    <span style="color:var(--cyan)">stage</span>: test
+                    <span style="color:var(--cyan)">variables</span>:
+                    <span style="color:var(--orange)">XDEBUG_MODE</span>: <span
+                        style="color:var(--green)">"coverage"</span>
+                    <span style="color:var(--cyan)">artifacts</span>:
+                    <span style="color:var(--cyan)">reports</span>:
+                    <span style="color:var(--cyan)">junit</span>: phpunit-execution-result.xml
+                    <span style="color:var(--cyan)">paths</span>:
+                    - phpunit-execution-result.xml
+                    - phpunit-coverage-result.xml
+                    <span style="color:var(--cyan)">script</span>:
+                    - vendor/bin/phpunit --coverage-clover=phpunit-coverage-result.xml
+                    --log-junit=phpunit-execution-result.xml
+
+                    <span style="color:var(--yellow)">code-quality-job</span>:
+                    <span style="color:var(--cyan)">stage</span>: code_quality
+                    <span style="color:var(--cyan)">script</span>:
+                    - sonar-scanner.bat -D"sonar.projectKey=demo_pipeline"
+                    -D"sonar.sources=." -D"sonar.host.url=http://localhost:9000"
+                    -D"sonar.login=YOUR_TOKEN"
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 13. RESUME -->
+    <section id="resume">
+        <div class="container fade-in">
+            <span class="section-label label-cyan">🎯 Conclusion</span>
+            <h2 class="section-title">Résumé — Structure du Module DevOps</h2>
+            <div class="grid-2" style="margin-bottom:1.5rem">
+                <div class="card">
+                    <h3><span class="icon-circle ic-cyan">📘</span> Chapitre 1 — DevOps</h3>
+                    <div style="display:grid;gap:.4rem;margin-top:.8rem">
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;background:var(--cyan-bg);padding:.5rem .8rem;border-radius:8px">
+                            <span class="step-number" style="width:22px;height:22px;font-size:.65rem">1</span><span
+                                style="font-size:.82rem"><strong>Définition</strong> de DevOps</span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;background:var(--green-bg);padding:.5rem .8rem;border-radius:8px">
+                            <span class="step-number"
+                                style="width:22px;height:22px;font-size:.65rem;background:linear-gradient(135deg,var(--green),var(--teal))">2</span><span
+                                style="font-size:.82rem"><strong>CI/CD</strong> concepts</span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;background:var(--purple-bg);padding:.5rem .8rem;border-radius:8px">
+                            <span class="step-number"
+                                style="width:22px;height:22px;font-size:.65rem;background:linear-gradient(135deg,var(--purple),var(--accent))">3</span><span
+                                style="font-size:.82rem"><strong>Agile vs DevOps</strong></span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;background:var(--orange-bg);padding:.5rem .8rem;border-radius:8px">
+                            <span class="step-number"
+                                style="width:22px;height:22px;font-size:.65rem;background:linear-gradient(135deg,var(--orange),var(--yellow))">4</span><span
+                                style="font-size:.82rem"><strong>Outils</strong> DevOps</span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;background:var(--teal-bg);padding:.5rem .8rem;border-radius:8px">
+                            <span class="step-number"
+                                style="width:22px;height:22px;font-size:.65rem;background:linear-gradient(135deg,var(--teal),var(--cyan))">5</span><span
+                                style="font-size:.82rem"><strong>Avantages</strong> et bénéfices</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-purple">📘</span> Chapitre 2 — GitLab CI/CD</h3>
+                    <div style="display:grid;gap:.4rem;margin-top:.8rem">
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;background:var(--purple-bg);padding:.5rem .8rem;border-radius:8px">
+                            <span class="step-number"
+                                style="width:22px;height:22px;font-size:.65rem;background:linear-gradient(135deg,var(--purple),var(--blue))">1</span><span
+                                style="font-size:.82rem"><strong>GitLab CI/CD</strong> définition</span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;background:var(--blue-bg);padding:.5rem .8rem;border-radius:8px">
+                            <span class="step-number"
+                                style="width:22px;height:22px;font-size:.65rem;background:linear-gradient(135deg,var(--blue),var(--cyan))">2</span><span
+                                style="font-size:.82rem"><strong>Pipeline</strong> architecture</span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;background:var(--cyan-bg);padding:.5rem .8rem;border-radius:8px">
+                            <span class="step-number" style="width:22px;height:22px;font-size:.65rem">3</span><span
+                                style="font-size:.82rem"><strong>.gitlab-ci.yml</strong> config</span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;background:var(--orange-bg);padding:.5rem .8rem;border-radius:8px">
+                            <span class="step-number"
+                                style="width:22px;height:22px;font-size:.65rem;background:linear-gradient(135deg,var(--orange),var(--red))">4</span><span
+                                style="font-size:.82rem"><strong>Runner</strong> setup</span>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:.6rem;background:var(--red-bg);padding:.5rem .8rem;border-radius:8px">
+                            <span class="step-number"
+                                style="width:22px;height:22px;font-size:.65rem;background:linear-gradient(135deg,var(--red),var(--orange))">5</span><span
+                                style="font-size:.82rem"><strong>Pipeline avancé</strong> exécution</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="callout callout-green fade-in">🎯 <strong>DevOps automatise toute la chaîne</strong> — du code
+                source à la production — en combinant CI/CD, containers, monitoring et infrastructure as code.</div>
+        </div>
+    </section>
+
+    <!-- NAV LINKS -->
+    <section style="padding:3rem 0">
+        <div class="container fade-in">
+            <div class="grid-2">
+                <a href="6.%20Approche%20Agile_tests%20unitaires%20et%20couverture%20de%20code.html"
+                    style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;gap:1rem;border:1px solid rgba(20,184,166,.3);background:linear-gradient(135deg,var(--card),rgba(20,184,166,.08));cursor:pointer">
+                        <div style="font-size:1.5rem;color:var(--teal)">←</div>
+                        <div><span class="section-label label-teal"
+                                style="margin-bottom:.3rem;font-size:.65rem">Chapitre précédent</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">Tests Unitaires</h3>
+                        </div>
+                    </div>
+                </a>
+                <a href="1.%20Approche%20agile_Introduction.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:flex-end;gap:1rem;border:1px solid rgba(6,182,212,.3);background:linear-gradient(135deg,var(--card),rgba(6,182,212,.08));cursor:pointer;text-align:right">
+                        <div><span class="section-label label-cyan" style="margin-bottom:.3rem;font-size:.65rem">Module
+                                principal</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">Gestion de Projet Agile</h3>
+                        </div>
+                        <div style="font-size:1.5rem;color:var(--cyan)">→</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>📘 Module Approche Agile — Chapitre 7 : DevOps & GitLab CI/CD | Stagiaire : Youssef NAJIMI | DEVOWFS</p>
+        <p style="margin-top:.5rem"><a href="1.%20Approche%20agile_Introduction.html">← Retour au module principal</a>
+        </p>
+    </footer>
+
+    <script>
+        const obs = new IntersectionObserver(e => { e.forEach(e => { e.isIntersecting && e.target.classList.add('visible') }) }, { threshold: .1 });
+        document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    </script>
+</body>
+
+</html>

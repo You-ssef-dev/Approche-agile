@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cours — Gestion de Projet Agile</title>
+    <meta name="description"
+        content="Module complet sur la gestion de projet Agile : fondamentaux, méthodes classiques, Scrum, DevOps et CI/CD.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --bg: #0a0e1a;
+            --surface: #111827;
+            --card: #1a2236;
+            --card-hover: #1e2a42;
+            --border: #2a3550;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, .15);
+            --green: #10b981;
+            --green-bg: rgba(16, 185, 129, .1);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, .1);
+            --yellow: #f59e0b;
+            --yellow-bg: rgba(245, 158, 11, .1);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59, 130, 246, .1);
+            --purple: #a855f7;
+            --purple-bg: rgba(168, 85, 247, .1);
+            --radius: 12px;
+            --transition: .3s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden
+        }
+
+        a {
+            color: var(--accent-light);
+            text-decoration: none
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent)
+        }
+
+        /* NAV */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 14, 26, .85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px
+        }
+
+        .nav-logo {
+            font-weight: 800;
+            font-size: 1.15rem;
+            background: linear-gradient(135deg, var(--accent-light), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            align-items: center
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            font-size: .85rem;
+            font-weight: 500;
+            transition: color var(--transition)
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-light)
+        }
+
+        .nav-select {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .15), rgba(168, 85, 247, .15));
+            color: var(--accent-light);
+            border: 1px solid rgba(99, 102, 241, .35);
+            border-radius: 8px;
+            padding: .4rem .8rem .4rem .6rem;
+            font-family: 'Inter', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all .3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23818cf8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .6rem center;
+            padding-right: 1.8rem
+        }
+
+        .nav-select:hover {
+            border-color: var(--accent-light);
+            background: linear-gradient(135deg, rgba(99, 102, 241, .25), rgba(168, 85, 247, .25))
+        }
+
+        .nav-select option {
+            background: var(--surface);
+            color: var(--text);
+            padding: .5rem
+        }
+
+        /* HERO */
+        .hero {
+            padding: 10rem 2rem 5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: .4rem 1rem;
+            border-radius: 50px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(99, 102, 241, .3);
+            color: var(--accent-light);
+            font-size: .8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 1rem
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent-light), #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 2rem
+        }
+
+        /* SECTIONS */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem
+        }
+
+        section {
+            padding: 4rem 0
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .35rem .9rem;
+            border-radius: 50px;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 1rem
+        }
+
+        .label-blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+            border: 1px solid rgba(59, 130, 246, .25)
+        }
+
+        .label-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid rgba(16, 185, 129, .25)
+        }
+
+        .label-purple {
+            background: var(--purple-bg);
+            color: var(--purple);
+            border: 1px solid rgba(168, 85, 247, .25)
+        }
+
+        .label-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+            border: 1px solid rgba(245, 158, 11, .25)
+        }
+
+        .label-red {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, .25)
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: .5rem
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+            max-width: 700px
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            transition: all var(--transition)
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, .08)
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: .6rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .card p,
+        .card li {
+            color: var(--text-muted);
+            font-size: .92rem
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0
+        }
+
+        .card ul li {
+            padding: .3rem 0;
+            padding-left: 1.4rem;
+            position: relative
+        }
+
+        .card ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent-light)
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem
+        }
+
+        /* ICON CIRCLE */
+        .icon-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0
+        }
+
+        .ic-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .ic-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .ic-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .ic-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .ic-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        /* TRIANGLE VISUAL */
+        .triangle-box {
+            background: linear-gradient(135deg, var(--card), var(--card-hover));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            text-align: center;
+            margin: 2rem auto;
+            max-width: 500px
+        }
+
+        .triangle-svg {
+            margin: 1.5rem auto;
+            display: block
+        }
+
+        .triangle-labels {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap
+        }
+
+        .tri-label {
+            padding: .5rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: .85rem
+        }
+
+        /* TABLE */
+        .styled-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border)
+        }
+
+        .styled-table thead {
+            background: linear-gradient(135deg, var(--accent), #7c3aed)
+        }
+
+        .styled-table th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: .9rem;
+            color: #fff;
+            letter-spacing: .5px
+        }
+
+        .styled-table td {
+            padding: .9rem 1.5rem;
+            font-size: .9rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none
+        }
+
+        .styled-table tbody tr {
+            background: var(--card);
+            transition: background var(--transition)
+        }
+
+        .styled-table tbody tr:hover {
+            background: var(--card-hover)
+        }
+
+        /* TAGS / PILLS */
+        .tag {
+            display: inline-block;
+            padding: .25rem .7rem;
+            border-radius: 6px;
+            font-size: .78rem;
+            font-weight: 600
+        }
+
+        .tag-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .tag-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .tag-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .tag-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        /* TIMELINE */
+        .timeline {
+            position: relative;
+            padding-left: 2.5rem
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent), var(--purple), var(--green))
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            position: absolute;
+            left: -2.05rem;
+            top: .5rem;
+            border: 2px solid var(--bg);
+            box-shadow: 0 0 0 3px var(--accent-glow)
+        }
+
+        .timeline-item .card {
+            margin-left: 0
+        }
+
+        /* CALLOUT */
+        .callout {
+            border-left: 3px solid var(--accent);
+            background: var(--accent-glow);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            margin: 1.5rem 0;
+            font-size: .92rem
+        }
+
+        .callout-green {
+            border-left-color: var(--green);
+            background: var(--green-bg)
+        }
+
+        .callout-yellow {
+            border-left-color: var(--yellow);
+            background: var(--yellow-bg)
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: .85rem;
+            margin-top: 4rem
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 3rem
+            }
+
+            .section-title {
+                font-size: 1.5rem
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr
+            }
+        }
+
+        /* FADE-IN ANIMATION */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .6s ease, transform .6s ease
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-logo">📘 Gestion de Projet</div>
+            <ul class="nav-links">
+                <li><a href="#objectif">Objectif</a></li>
+                <li><a href="#fondamentaux">Fondamentaux</a></li>
+                <li><a href="#stakeholders">Parties Prenantes</a></li>
+                <li><a href="#roles">Rôles</a></li>
+                <li><a href="#contraintes">Contraintes</a></li>
+                <li><a href="#methodes">Méthodes</a></li>
+                <li><a href="#comparaison">Comparaison</a></li>
+                <li>
+                    <select class="nav-select" onchange="if(this.value)window.location.href=this.value">
+                        <option value="">📚 Chapitres</option>
+                        <option value="2.%20Approche%20agile_Préparer%20un%20projet.html">📊 PERT & Gantt</option>
+                        <option value="3.%20Approche%20agile_SCRUM.html">🔄 Scrum</option>
+                        <option value="4.%20Approche%20agile_Manipuler%20JIRA.html">🔧 Jira</option>
+                        <option value="5.%20Approche%20Agile_gestion%20de%20version%20et%20qualité%20du%20code.html">🔀
+                            Git & SonarQube</option>
+                        <option value="6.%20Approche%20Agile_tests%20unitaires%20et%20couverture%20de%20code.html">🧪
+                            Tests Unitaires</option>
+                        <option value="7.%20Approche%20agile_DevOps.html">🔄 DevOps & CI/CD</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="hero-badge">📌 Module Développement Digital</div>
+        <h1>Gestion de Projet <span>Agile</span></h1>
+        <p>Maîtrisez les fondamentaux de la gestion de projet, les méthodes classiques et Agile, ainsi que les outils
+            modernes comme Scrum, Jira, Git et DevOps.</p>
+    </header>
+
+    <!-- 1. OBJECTIF DU MODULE -->
+    <section id="objectif">
+        <div class="container fade-in">
+            <span class="section-label label-blue">📌 Section 1</span>
+            <h2 class="section-title">🎯 Objectif du Module</h2>
+            <p class="section-desc">Former les apprenants en développement digital aux concepts et pratiques modernes de
+                gestion de projet.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <h3><span class="icon-circle ic-blue">📚</span> Compétences visées</h3>
+                    <ul>
+                        <li>Comprendre la gestion de projet</li>
+                        <li>Maîtriser les méthodes classiques et Agile</li>
+                        <li>Utiliser Scrum, Jira, Git, GitLab, SonarQube</li>
+                        <li>Comprendre les bases du DevOps et CI/CD</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-purple">🗂️</span> Progression pédagogique</h3>
+                    <ul>
+                        <li>Concepts fondamentaux</li>
+                        <li>Méthodes de gestion</li>
+                        <li>Approche Agile</li>
+                        <li>Outils techniques</li>
+                        <li>DevOps &amp; CI/CD</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. FONDAMENTAUX -->
+    <section id="fondamentaux">
+        <div class="container fade-in">
+            <span class="section-label label-green">📌 Section 2</span>
+            <h2 class="section-title">Fondamentaux de Gestion de Projet</h2>
+            <p class="section-desc">Les bases essentielles pour comprendre la gestion de projet.</p>
+
+            <div class="grid-3">
+                <div class="card">
+                    <h3><span class="icon-circle ic-green">🎯</span> Définition d'un Projet</h3>
+                    <ul>
+                        <li>A un objectif précis</li>
+                        <li>A un début et une fin</li>
+                        <li>Mobilise des ressources</li>
+                        <li>A un budget défini</li>
+                        <li>Produit des livrables</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-blue">🏗️</span> MOA vs MOE</h3>
+                    <p><strong>MOA</strong> (Maîtrise d'Ouvrage) : exprime le besoin</p>
+                    <p style="margin-top:.4rem"><strong>MOE</strong> (Maîtrise d'Œuvre) : réalise le projet</p>
+                    <div class="callout-green callout" style="margin-top:1rem">✔ Distinction essentielle rôle client /
+                        rôle exécutant</div>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-yellow">📦</span> Ressources</h3>
+                    <ul>
+                        <li>Humaines</li>
+                        <li>Financières</li>
+                        <li>Matérielles</li>
+                        <li>Temps</li>
+                    </ul>
+                    <div class="callout-yellow callout" style="margin-top:.8rem">⚠ Mauvaise planification = retards
+                    </div>
+                </div>
+            </div>
+
+            <!-- Triangle d'or -->
+            <div class="triangle-box fade-in" style="margin-top:2.5rem">
+                <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:.5rem">🔺 Triangle d'Or de la Gestion de
+                    Projet</h3>
+                <p style="color:var(--text-muted);font-size:.9rem">Objectif principal : respecter l'équilibre entre ces
+                    trois piliers</p>
+                <svg class="triangle-svg" width="220" height="200" viewBox="0 0 220 200">
+                    <polygon points="110,15 15,185 205,185" fill="none" stroke="url(#triGrad)" stroke-width="3" />
+                    <defs>
+                        <linearGradient id="triGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#6366f1" />
+                            <stop offset="50%" stop-color="#a855f7" />
+                            <stop offset="100%" stop-color="#10b981" />
+                        </linearGradient>
+                    </defs>
+                    <text x="110" y="12" text-anchor="middle" fill="#818cf8" font-size="13"
+                        font-weight="700">Qualité</text>
+                    <text x="5" y="200" fill="#a855f7" font-size="13" font-weight="700">Coût</text>
+                    <text x="165" y="200" fill="#10b981" font-size="13" font-weight="700">Délais</text>
+                </svg>
+            </div>
+
+            <div class="grid-2 fade-in" style="margin-top:2rem">
+                <div class="card">
+                    <h3><span class="icon-circle ic-purple">📄</span> Livrables</h3>
+                    <p><strong>Final :</strong> application, produit fini</p>
+                    <p style="margin-top:.3rem"><strong>Intermédiaire :</strong> cahier des charges, documentation</p>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-red">📋</span> Cahier des Charges</h3>
+                    <ul>
+                        <li>Définit les besoins</li>
+                        <li>Fixe les coûts et délais</li>
+                        <li>Clarifie les exigences</li>
+                    </ul>
+                    <p style="margin-top:.5rem;font-size:.85rem;color:var(--text-dim)">Très important dans la méthode
+                        classique (cycle en V)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. PARTIES PRENANTES -->
+    <section id="stakeholders">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 3</span>
+            <h2 class="section-title">Parties Prenantes (Stakeholders)</h2>
+            <p class="section-desc">Tous les acteurs impliqués dans le projet.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <h3><span class="icon-circle ic-blue">🌐</span> Acteurs Externes</h3>
+                    <ul>
+                        <li>Clients</li>
+                        <li>Fournisseurs</li>
+                        <li>Investisseurs</li>
+                        <li>Organismes</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-green">🏢</span> Acteurs Internes</h3>
+                    <ul>
+                        <li>Commanditaire</li>
+                        <li>Sponsor</li>
+                        <li>Direction</li>
+                        <li>Équipe projet</li>
+                        <li>Services support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. RÔLES -->
+    <section id="roles">
+        <div class="container fade-in">
+            <span class="section-label label-yellow">📌 Section 4</span>
+            <h2 class="section-title">Rôles dans un Projet Informatique</h2>
+            <p class="section-desc">Le chef de projet et la matrice RACI.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <h3><span class="icon-circle ic-yellow">👤</span> Chef de Projet</h3>
+                    <ul>
+                        <li>Gère le planning</li>
+                        <li>Gère le budget</li>
+                        <li>Coordonne l'équipe</li>
+                        <li>Résout les problèmes</li>
+                        <li>Interface avec le client</li>
+                    </ul>
+                    <div class="callout-green callout" style="margin-top:.8rem">✔ Vision complète technique +
+                        managériale</div>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-purple">📊</span> Matrice RACI</h3>
+                    <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin:.8rem 0">
+                        <span class="tag tag-blue"><strong>R</strong> — Responsible</span>
+                        <span class="tag tag-green"><strong>A</strong> — Accountable</span>
+                        <span class="tag" style="background:var(--purple-bg);color:var(--purple)"><strong>C</strong> —
+                            Consulted</span>
+                        <span class="tag tag-yellow"><strong>I</strong> — Informed</span>
+                    </div>
+                    <p style="margin-top:.5rem">Clarifie les responsabilités et évite les conflits dans l'équipe.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. CONTRAINTES -->
+    <section id="contraintes">
+        <div class="container fade-in">
+            <span class="section-label label-red">📌 Section 5</span>
+            <h2 class="section-title">Contraintes du Projet</h2>
+            <p class="section-desc">Les facteurs qui limitent et encadrent le projet.</p>
+            <div class="grid-4" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-blue" style="margin:0 auto .8rem">⏰</div>
+                    <h3 style="justify-content:center">Délais</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-green" style="margin:0 auto .8rem">💰</div>
+                    <h3 style="justify-content:center">Coûts</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-purple" style="margin:0 auto .8rem">⭐</div>
+                    <h3 style="justify-content:center">Qualité</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-yellow" style="margin:0 auto .8rem">🤝</div>
+                    <h3 style="justify-content:center">Client</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-red" style="margin:0 auto .8rem">⚖️</div>
+                    <h3 style="justify-content:center">Légales</h3>
+                </div>
+            </div>
+            <div class="callout fade-in" style="margin-top:1.5rem">👉 Ces contraintes montrent la complexité réelle des
+                projets informatiques.</div>
+        </div>
+    </section>
+
+    <!-- 6. MÉTHODES -->
+    <section id="methodes">
+        <div class="container fade-in">
+            <span class="section-label label-blue">📌 Section 6</span>
+            <h2 class="section-title">Méthodes de Gestion de Projet</h2>
+            <p class="section-desc">Des approches prévisibles (classiques) aux approches imprévisibles (Agile).</p>
+
+            <h3 style="font-size:1.3rem;font-weight:700;margin-bottom:1.5rem;color:var(--blue)">🔵 Méthodes Prévisibles
+            </h3>
+            <div class="grid-2" style="margin-bottom:3rem">
+                <div class="card">
+                    <h3><span class="icon-circle ic-blue">🌊</span> Cascade (Waterfall)</h3>
+                    <ul>
+                        <li>Séquentiel strict</li>
+                        <li>Pas de retour arrière</li>
+                        <li>Très structuré</li>
+                    </ul>
+                    <div style="margin-top:.8rem;display:flex;flex-wrap:wrap;gap:.4rem">
+                        <span class="tag tag-red">❌ Manque de flexibilité</span>
+                        <span class="tag tag-red">❌ Problème si changement</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-purple">✅</span> Cycle en V</h3>
+                    <ul>
+                        <li>Chaque phase a une phase de test</li>
+                        <li>Très documenté &amp; rigoureux</li>
+                    </ul>
+                    <div style="margin-top:.8rem;display:flex;flex-wrap:wrap;gap:.4rem">
+                        <span class="tag tag-green">✔ Organisation claire</span>
+                        <span class="tag tag-green">✔ Grands projets</span>
+                        <span class="tag tag-yellow">⚠ Effet tunnel</span>
+                        <span class="tag tag-yellow">⚠ Peu adaptable</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="font-size:1.3rem;font-weight:700;margin-bottom:1.5rem;color:var(--green)">🟢 Méthodes
+                Imprévisibles : Agile</h3>
+            <div class="card fade-in" style="margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-green">🔄</span> Principe Agile</h3>
+                <p>Projet découpé en <strong>itérations</strong>, adaptation continue, livraisons fréquentes.</p>
+            </div>
+
+            <div class="grid-2 fade-in">
+                <div class="card">
+                    <h3><span class="icon-circle ic-green">💎</span> Les 4 Valeurs Fondamentales</h3>
+                    <ul>
+                        <li>1️⃣ Les individus et leurs interactions</li>
+                        <li>2️⃣ Un logiciel fonctionnel</li>
+                        <li>3️⃣ La collaboration avec le client</li>
+                        <li>4️⃣ L'adaptation au changement</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-blue">📜</span> 📌 Les 12 Principes de l'Agile</h3>
+                    <ul>
+                        <li>1️⃣ Satisfaction du client</li>
+                        <li>2️⃣ Accueillir le changement</li>
+                        <li>3️⃣ Livrer fréquemment</li>
+                        <li>4️⃣ Collaboration quotidienne</li>
+                        <li>5️⃣ Construire autour d'individus motivés</li>
+                        <li>6️⃣ Communication directe</li>
+                        <li>7️⃣ Logiciel fonctionnel = mesure principale</li>
+                        <li>8️⃣ Rythme soutenable</li>
+                        <li>9️⃣ Excellence technique</li>
+                        <li>🔟 Simplicité</li>
+                        <li>1️⃣1️⃣ Équipes auto-organisées</li>
+                        <li>1️⃣2️⃣ Amélioration continue</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card fade-in" style="margin-top:1.5rem">
+                <h3><span class="icon-circle ic-purple">🚀</span> Méthodes Agile principales</h3>
+                <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem">
+                    <div
+                        style="flex:1;min-width:200px;background:var(--card-hover);padding:1.2rem;border-radius:var(--radius);border:1px solid var(--border)">
+                        <h4 style="color:var(--accent-light);margin-bottom:.5rem">Scrum</h4>
+                        <ul>
+                            <li>Sprint</li>
+                            <li>Sprint Backlog</li>
+                            <li>Scrum Master</li>
+                            <li>Product Owner</li>
+                            <li>Daily Meeting</li>
+                        </ul>
+                    </div>
+                    <div
+                        style="flex:1;min-width:120px;background:var(--card-hover);padding:1.2rem;border-radius:var(--radius);border:1px solid var(--border)">
+                        <h4 style="color:var(--green);margin-bottom:.5rem">Kanban</h4>
+                        <p style="font-size:.88rem;color:var(--text-muted)">Flux visuel continu, limitation du travail
+                            en cours</p>
+                    </div>
+                    <div
+                        style="flex:1;min-width:120px;background:var(--card-hover);padding:1.2rem;border-radius:var(--radius);border:1px solid var(--border)">
+                        <h4 style="color:var(--yellow);margin-bottom:.5rem">Lean</h4>
+                        <p style="font-size:.88rem;color:var(--text-muted)">Élimination du gaspillage, optimisation de
+                            la valeur</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. COMPARAISON -->
+    <section id="comparaison">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 7</span>
+            <h2 class="section-title">Comparaison : Cycle en V vs Agile</h2>
+            <p class="section-desc">Pourquoi Agile est adapté au développement logiciel moderne.</p>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Critère</th>
+                        <th>Cycle en V</th>
+                        <th>Agile</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Planification</strong></td>
+                        <td>Plan fixe</td>
+                        <td><span class="tag tag-green">Plan évolutif</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Focus</strong></td>
+                        <td>Processus centré</td>
+                        <td><span class="tag tag-green">Produit centré</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Documentation</strong></td>
+                        <td>Documentation forte</td>
+                        <td><span class="tag tag-green">Livraison fréquente</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flexibilité</strong></td>
+                        <td><span class="tag tag-red">Peu flexible</span></td>
+                        <td><span class="tag tag-green">Très flexible</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Adaptation</strong></td>
+                        <td><span class="tag tag-red">Difficile</span></td>
+                        <td><span class="tag tag-green">Continue</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout-green callout fade-in" style="margin-top:2rem">
+                👉 Le document montre clairement pourquoi <strong>Agile</strong> est le choix optimal pour le
+                développement logiciel moderne : flexibilité, livraisons fréquentes et adaptation continue aux besoins
+                du client.
+            </div>
+        </div>
+    </section>
+
+    <!-- CHAPTERS NAVIGATION -->
+    <section style="padding:3rem 0">
+        <div class="container fade-in">
+            <h2 class="section-title" style="margin-bottom:1.5rem">📘 Chapitres du Module</h2>
+            <div class="grid-4">
+                <a href="2.%20Approche%20agile_Préparer%20un%20projet.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(99,102,241,.3);background:linear-gradient(135deg,var(--card),rgba(99,102,241,.08));cursor:pointer">
+                        <div>
+                            <span class="section-label label-blue" style="margin-bottom:.5rem">📊 Chapitre 2</span>
+                            <h3 style="font-size:1rem;font-weight:800;margin-bottom:.3rem">PERT & GANTT</h3>
+                        </div>
+                        <div style="font-size:1.3rem;color:var(--accent-light)">→</div>
+                    </div>
+                </a>
+                <a href="3.%20Approche%20agile_SCRUM.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(168,85,247,.3);background:linear-gradient(135deg,var(--card),rgba(168,85,247,.08));cursor:pointer">
+                        <div>
+                            <span class="section-label label-purple" style="margin-bottom:.5rem">🔄 Chapitre 3</span>
+                            <h3 style="font-size:1rem;font-weight:800;margin-bottom:.3rem">SCRUM</h3>
+                        </div>
+                        <div style="font-size:1.3rem;color:var(--purple)">→</div>
+                    </div>
+                </a>
+                <a href="4.%20Approche%20agile_Manipuler%20JIRA.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(59,130,246,.3);background:linear-gradient(135deg,var(--card),rgba(59,130,246,.08));cursor:pointer">
+                        <div>
+                            <span class="section-label label-blue" style="margin-bottom:.5rem">🔧 Chapitre 4</span>
+                            <h3 style="font-size:1rem;font-weight:800;margin-bottom:.3rem">Manipuler JIRA</h3>
+                        </div>
+                        <div style="font-size:1.3rem;color:var(--blue)">→</div>
+                    </div>
+                </a>
+                <a href="5.%20Approche%20Agile_gestion%20de%20version%20et%20qualité%20du%20code.html"
+                    style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(249,115,22,.3);background:linear-gradient(135deg,var(--card),rgba(249,115,22,.08));cursor:pointer">
+                        <div>
+                            <span class="section-label label-orange" style="margin-bottom:.5rem">🔀 Chapitre 5</span>
+                            <h3 style="font-size:1rem;font-weight:800;margin-bottom:.3rem">Git & SonarQube</h3>
+                        </div>
+                        <div style="font-size:1.3rem;color:var(--orange)">→</div>
+                    </div>
+                </a>
+                <a href="6.%20Approche%20Agile_tests%20unitaires%20et%20couverture%20de%20code.html"
+                    style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(20,184,166,.3);background:linear-gradient(135deg,var(--card),rgba(20,184,166,.08));cursor:pointer">
+                        <div>
+                            <span class="section-label label-green" style="margin-bottom:.5rem">🧪 Chapitre 6</span>
+                            <h3 style="font-size:1rem;font-weight:800;margin-bottom:.3rem">Tests Unitaires</h3>
+                        </div>
+                        <div style="font-size:1.3rem;color:var(--green)">→</div>
+                    </div>
+                </a>
+                <a href="7.%20Approche%20agile_DevOps.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(6,182,212,.3);background:linear-gradient(135deg,var(--card),rgba(6,182,212,.08));cursor:pointer">
+                        <div>
+                            <span class="section-label label-blue"
+                                style="margin-bottom:.5rem;border-color:rgba(6,182,212,.25);background:rgba(6,182,212,.1);color:#06b6d4">🔄
+                                Chapitre 7</span>
+                            <h3 style="font-size:1rem;font-weight:800;margin-bottom:.3rem">DevOps & CI/CD</h3>
+                        </div>
+                        <div style="font-size:1.3rem;color:#06b6d4">→</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>📘 Module Gestion de Projet — Développement Digital &copy; 2026</p>
+        <p style="margin-top:.5rem">Créé avec ❤️ pour les apprenants en développement digital</p>
+    </footer>
+
+    <!-- SCROLL ANIMATION -->
+    <script>
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+        // Smooth scroll
+        document.querySelectorAll('.nav-links a').forEach(a => {
+            a.addEventListener('click', e => {
+                const href = a.getAttribute('href');
+                if (href.startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelector(href).scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

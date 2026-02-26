@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Tests Unitaires & Couverture de Code — Module Agile</title>
+    <meta name="description"
+        content="Chapitre 6 : Tests unitaires avec PHPUnit, couverture de code et intégration SonarQube">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --card: #16161f;
+            --card-hover: #1c1c28;
+            --border: #1e1e2e;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #475569;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, .08);
+            --blue: #3b82f6;
+            --green: #10b981;
+            --purple: #a855f7;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --orange: #f97316;
+            --cyan: #06b6d4;
+            --teal: #14b8a6;
+            --blue-bg: rgba(59, 130, 246, .1);
+            --green-bg: rgba(16, 185, 129, .1);
+            --purple-bg: rgba(168, 85, 247, .1);
+            --yellow-bg: rgba(234, 179, 8, .1);
+            --red-bg: rgba(239, 68, 68, .1);
+            --orange-bg: rgba(249, 115, 22, .1);
+            --cyan-bg: rgba(6, 182, 212, .1);
+            --teal-bg: rgba(20, 184, 166, .1);
+            --radius: 12px;
+            --transition: .3s ease
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 15, .85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            padding: .8rem 0
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .nav-logo {
+            font-weight: 900;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, var(--teal), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: .85rem;
+            font-weight: 500;
+            transition: color var(--transition)
+        }
+
+        .nav-links a:hover {
+            color: var(--teal)
+        }
+
+        .nav-select {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .15), rgba(168, 85, 247, .15));
+            color: var(--accent-light);
+            border: 1px solid rgba(99, 102, 241, .35);
+            border-radius: 8px;
+            padding: .4rem .8rem .4rem .6rem;
+            font-family: 'Inter', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all .3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23818cf8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .6rem center;
+            padding-right: 1.8rem
+        }
+
+        .nav-select:hover {
+            border-color: var(--accent-light);
+            background: linear-gradient(135deg, rgba(99, 102, 241, .25), rgba(168, 85, 247, .25))
+        }
+
+        .nav-select option {
+            background: var(--surface);
+            color: var(--text);
+            padding: .5rem
+        }
+
+        .hero {
+            text-align: center;
+            padding: 10rem 2rem 4rem;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(20, 184, 166, .12), transparent 70%);
+            pointer-events: none
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--teal-bg);
+            border: 1px solid rgba(20, 184, 166, .3);
+            color: var(--teal);
+            padding: .4rem 1.2rem;
+            border-radius: 20px;
+            font-size: .82rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 1rem
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--teal), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem
+        }
+
+        section {
+            padding: 4rem 0
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: .3rem .8rem;
+            border-radius: 6px;
+            margin-bottom: .8rem
+        }
+
+        .label-teal {
+            background: var(--teal-bg);
+            color: var(--teal)
+        }
+
+        .label-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .label-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .label-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .label-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .label-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .label-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .label-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: .5rem
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            max-width: 700px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            transition: all var(--transition)
+        }
+
+        .card:hover {
+            border-color: var(--teal);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(20, 184, 166, .08)
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: .6rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .card p,
+        .card li {
+            color: var(--text-muted);
+            font-size: .92rem
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0
+        }
+
+        .card ul li {
+            padding: .3rem 0;
+            padding-left: 1.4rem;
+            position: relative
+        }
+
+        .card ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--teal)
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem
+        }
+
+        .icon-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0
+        }
+
+        .ic-teal {
+            background: var(--teal-bg);
+            color: var(--teal)
+        }
+
+        .ic-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .ic-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .ic-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .ic-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .ic-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .ic-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .ic-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .tag {
+            display: inline-block;
+            padding: .25rem .7rem;
+            border-radius: 6px;
+            font-size: .78rem;
+            font-weight: 600
+        }
+
+        .tag-teal {
+            background: var(--teal-bg);
+            color: var(--teal)
+        }
+
+        .tag-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .tag-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .tag-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .tag-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .tag-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .tag-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .tag-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .callout {
+            border-left: 3px solid var(--teal);
+            background: var(--teal-bg);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            margin: 1.5rem 0;
+            font-size: .92rem
+        }
+
+        .callout-green {
+            border-left-color: var(--green);
+            background: var(--green-bg)
+        }
+
+        .callout-yellow {
+            border-left-color: var(--yellow);
+            background: var(--yellow-bg)
+        }
+
+        .callout-red {
+            border-left-color: var(--red);
+            background: var(--red-bg)
+        }
+
+        .callout-blue {
+            border-left-color: var(--blue);
+            background: var(--blue-bg)
+        }
+
+        .callout-purple {
+            border-left-color: var(--purple);
+            background: var(--purple-bg)
+        }
+
+        .callout-orange {
+            border-left-color: var(--orange);
+            background: var(--orange-bg)
+        }
+
+        code,
+        .cmd {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(20, 184, 166, .12);
+            color: var(--teal);
+            padding: .15rem .5rem;
+            border-radius: 5px;
+            font-size: .82rem;
+            font-weight: 600
+        }
+
+        .cmd-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .82rem;
+            color: var(--green);
+            margin: .8rem 0;
+            overflow-x: auto;
+            line-height: 1.8
+        }
+
+        .cmd-block .comment {
+            color: var(--text-dim)
+        }
+
+        .styled-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border)
+        }
+
+        .styled-table thead {
+            background: linear-gradient(135deg, var(--teal), #0d9488)
+        }
+
+        .styled-table th {
+            padding: .9rem 1.2rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: .85rem;
+            color: #fff;
+            letter-spacing: .5px
+        }
+
+        .styled-table td {
+            padding: .8rem 1.2rem;
+            font-size: .85rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none
+        }
+
+        .styled-table tbody tr {
+            background: var(--card);
+            transition: background var(--transition)
+        }
+
+        .styled-table tbody tr:hover {
+            background: var(--card-hover)
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--teal), var(--green));
+            color: #fff;
+            font-size: .8rem;
+            font-weight: 800;
+            flex-shrink: 0
+        }
+
+        .wf-step {
+            padding: .6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: .85rem
+        }
+
+        .wf-arrow {
+            color: var(--text-dim);
+            font-size: 1.3rem;
+            font-weight: 800
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: .85rem;
+            margin-top: 4rem
+        }
+
+        footer a {
+            color: var(--teal);
+            text-decoration: none
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 3rem
+            }
+
+            .section-title {
+                font-size: 1.5rem
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .6s ease, transform .6s ease
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-logo">📘 Gestion de Projet</div>
+            <ul class="nav-links">
+                <li><a href="1.%20Approche%20agile_Introduction.html">← Retour</a></li>
+                <li><a href="#definition">Définition</a></li>
+                <li><a href="#phpunit">PHPUnit</a></li>
+                <li><a href="#dataproviders">Data Providers</a></li>
+                <li><a href="#coverage">Couverture</a></li>
+                <li><a href="#sonarqube">SonarQube</a></li>
+                <li>
+                    <select class="nav-select" onchange="if(this.value)window.location.href=this.value">
+                        <option value="">📚 Chapitres</option>
+                        <option value="1.%20Approche%20agile_Introduction.html">📖 Introduction</option>
+                        <option value="2.%20Approche%20agile_Préparer%20un%20projet.html">📊 PERT & Gantt</option>
+                        <option value="3.%20Approche%20agile_SCRUM.html">🔄 Scrum</option>
+                        <option value="4.%20Approche%20agile_Manipuler%20JIRA.html">🔧 Jira</option>
+                        <option value="5.%20Approche%20Agile_gestion%20de%20version%20et%20qualité%20du%20code.html">🔀
+                            Git & SonarQube</option>
+                        <option value="6.%20Approche%20Agile_tests%20unitaires%20et%20couverture%20de%20code.html">🧪
+                            Tests Unitaires</option>
+                        <option value="7.%20Approche%20agile_DevOps.html">🔄 DevOps & CI/CD</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="hero-badge">📌 Chapitre 6 — Module Approche Agile</div>
+        <h1>Tests Unitaires & <span>Couverture de Code</span></h1>
+        <p>PHPUnit, assertions, data providers, et intégration SonarQube pour la qualité du code.</p>
+        <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1rem">
+            <span class="tag tag-teal">🧪 PHPUnit</span>
+            <span class="tag tag-green">✅ Assertions</span>
+            <span class="tag tag-purple">📊 Code Coverage</span>
+            <span class="tag tag-blue">🔍 SonarQube</span>
+            <span class="tag tag-orange">⚙️ Xdebug</span>
+        </div>
+    </header>
+
+    <!-- 1. DEFINITION -->
+    <section id="definition">
+        <div class="container fade-in">
+            <span class="section-label label-teal">📌 Section 1</span>
+            <h2 class="section-title">🧪 Qu'est-ce qu'un Test Unitaire ?</h2>
+            <p class="section-desc">Procédure qui vérifie le bon fonctionnement d'une partie spécifique d'un programme.
+            </p>
+            <div class="grid-4" style="margin-bottom:1.5rem">
+                <div class="card" style="text-align:center;border-top:3px solid var(--teal)"><span
+                        style="font-size:1.5rem">🔬</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Teste une petite partie</h3>
+                    <p style="font-size:.8rem">Fonction ou méthode isolée</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--green)"><span
+                        style="font-size:1.5rem">🎯</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Vérifie le résultat</h3>
+                    <p style="font-size:.8rem">Sortie attendue vs obtenue</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--blue)"><span
+                        style="font-size:1.5rem">⚡</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Exécution rapide</h3>
+                    <p style="font-size:.8rem">Millisecondes par test</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--purple)"><span
+                        style="font-size:1.5rem">🔄</span>
+                    <h3 style="justify-content:center;font-size:.9rem">Méthodologie Agile</h3>
+                    <p style="font-size:.8rem">Partie intégrante du cycle</p>
+                </div>
+            </div>
+            <div class="card fade-in" style="border-left:3px solid var(--teal)">
+                <h3><span class="icon-circle ic-teal">🔄</span> Concept de Test Unitaire</h3>
+                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:.8rem 0">
+                    <div class="wf-step" style="background:var(--blue-bg);color:var(--blue)">📥 Input</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--purple-bg);color:var(--purple)">⚙️ Code</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--green-bg);color:var(--green)">📤 Output</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--teal-bg);color:var(--teal)">✅ Vérifié</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. ADVANTAGES -->
+    <section id="avantages">
+        <div class="container fade-in">
+            <span class="section-label label-green">📌 Section 2</span>
+            <h2 class="section-title">✅ Avantages des Tests Unitaires</h2>
+            <p class="section-desc">Pourquoi les tests unitaires sont essentiels dans le développement Agile.</p>
+            <div class="grid-4">
+                <div class="card" style="text-align:center;border-top:3px solid var(--green)"><span
+                        style="font-size:1.3rem">📋</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Logique métier</h3>
+                    <p style="font-size:.8rem">Vérifie les règles métier</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--blue)"><span
+                        style="font-size:1.3rem">📖</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Documentation</h3>
+                    <p style="font-size:.8rem">Les tests servent de doc</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--teal)"><span
+                        style="font-size:1.3rem">⚡</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Très rapide</h3>
+                    <p style="font-size:.8rem">Exécution instantanée</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--purple)"><span
+                        style="font-size:1.3rem">🔧</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Refactoring sûr</h3>
+                    <p style="font-size:.8rem">Modifier sans casser</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--yellow)"><span
+                        style="font-size:1.3rem">👁️</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Lisibilité</h3>
+                    <p style="font-size:.8rem">Code plus clair</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--orange)"><span
+                        style="font-size:1.3rem">🏆</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Qualité finale</h3>
+                    <p style="font-size:.8rem">Moins de bugs</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--cyan)"><span
+                        style="font-size:1.3rem">🧩</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Modules indépendants</h3>
+                    <p style="font-size:.8rem">Tester en isolation</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--red)"><span
+                        style="font-size:1.3rem">🛡️</span>
+                    <h3 style="justify-content:center;font-size:.85rem">Régression</h3>
+                    <p style="font-size:.8rem">Détecter les régressions</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. TOOLS -->
+    <section id="outils">
+        <div class="container fade-in">
+            <span class="section-label label-blue">📌 Section 3</span>
+            <h2 class="section-title">🛠️ Outils de Tests Unitaires</h2>
+            <p class="section-desc">Chaque langage a ses propres frameworks de test.</p>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Langage</th>
+                        <th>Outil</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Java</strong></td>
+                        <td><code>JUnit</code></td>
+                        <td>Framework standard pour Java</td>
+                    </tr>
+                    <tr>
+                        <td><strong>.NET</strong></td>
+                        <td><code>xUnit / NUnit</code></td>
+                        <td>Frameworks pour C# / VB.NET</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PHP</strong></td>
+                        <td><code>PHPUnit</code></td>
+                        <td>Framework le plus populaire pour PHP</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 4. PHPUNIT -->
+    <section id="phpunit">
+        <div class="container fade-in">
+            <span class="section-label label-teal">📌 Section 4</span>
+            <h2 class="section-title">🧪 PHPUnit</h2>
+            <p class="section-desc">Framework open-source de tests unitaires pour PHP, installé via Composer.</p>
+            <div class="grid-2" style="margin-bottom:1.5rem">
+                <div class="card" style="border-left:3px solid var(--teal)">
+                    <h3><span class="icon-circle ic-teal">🧪</span> PHPUnit</h3>
+                    <ul>
+                        <li>Framework open-source</li>
+                        <li>Tests de <strong>régression</strong></li>
+                        <li>Installé via <strong>Composer</strong></li>
+                        <li>Hérite de <code>TestCase</code></li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--purple)">
+                    <h3><span class="icon-circle ic-purple">📦</span> Composer</h3>
+                    <ul>
+                        <li>Gestionnaire de dépendances PHP</li>
+                        <li>Installe des bibliothèques</li>
+                        <li>Gère les packages externes</li>
+                        <li>Utilisé pour créer des projets Laravel</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card fade-in" style="border-left:3px solid var(--green)">
+                <h3><span class="icon-circle ic-green">⚙️</span> Installation</h3>
+                <div class="cmd-block"><span class="comment"># Installer PHPUnit via Composer</span>
+                    composer require --dev phpunit/phpunit</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. CARRE CLASS -->
+    <section id="exemple">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 5</span>
+            <h2 class="section-title">📦 Exemple : La Classe Carre</h2>
+            <p class="section-desc">Un exemple concret pour comprendre les tests unitaires.</p>
+            <div class="grid-2">
+                <div class="card" style="border-left:3px solid var(--blue)">
+                    <h3><span class="icon-circle ic-blue">📄</span> Carre.php (src/)</h3>
+                    <div class="cmd-block" style="color:var(--text)"><span class="comment">// Classe à tester</span>
+                        <span style="color:var(--purple)">class</span> <span style="color:var(--yellow)">Carre</span> {
+                        <span style="color:var(--purple)">private</span> $cote;
+
+                        <span style="color:var(--purple)">public function</span> <span
+                            style="color:var(--blue)">setCote</span>($cote) {
+                        <span style="color:var(--purple)">if</span> ($cote < 0) <span style="color:var(--red)">throw
+                            new</span> Exception(<span style="color:var(--green)">"Valeur invalide!"</span>);
+                            $this->cote = $cote;
+                            }
+
+                            <span style="color:var(--purple)">public function</span> <span
+                                style="color:var(--blue)">surface</span>() {
+                            <span style="color:var(--purple)">return</span> $this->cote * $this->cote;
+                            }
+                            }
+                    </div>
+                </div>
+                <div class="card" style="border-left:3px solid var(--green)">
+                    <h3><span class="icon-circle ic-green">🧪</span> CarreTest.php (tests/)</h3>
+                    <div class="cmd-block" style="color:var(--text)"><span class="comment">// Classe de test</span>
+                        <span style="color:var(--purple)">class</span> <span
+                            style="color:var(--yellow)">CarreTest</span> <span
+                            style="color:var(--purple)">extends</span> TestCase
+                        {
+                        <span style="color:var(--purple)">public function</span> <span
+                            style="color:var(--blue)">testSurface</span>()
+                        {
+                        $objet = <span style="color:var(--purple)">new</span> Carre(10);
+                        $this-><span style="color:var(--teal)">assertEquals</span>(
+                        100, $objet->surface()
+                        );
+                        }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="callout-green callout fade-in" style="margin-top:1.5rem">
+                ✅ <code>assertEquals</code> compare le résultat attendu (100) au résultat obtenu. Si
+                <strong>égal</strong> → test réussit. Si <strong>inégal</strong> → test échoue.
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. RUN TESTS -->
+    <section id="lancement">
+        <div class="container fade-in">
+            <span class="section-label label-green">📌 Section 6</span>
+            <h2 class="section-title">▶️ Lancement des Tests</h2>
+            <p class="section-desc">Exécuter et interpréter les résultats de PHPUnit.</p>
+            <div class="card" style="border-left:3px solid var(--green);margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-green">▶️</span> Commande d'exécution</h3>
+                <div class="cmd-block"><span class="comment"># Lancer tous les tests</span>
+                    vendor/bin/phpunit tests
+
+                    <span class="comment"># Avec couleurs</span>
+                    vendor/bin/phpunit tests --colors
+
+                    <span class="comment"># Lancer un seul test</span>
+                    vendor/bin/phpunit --filter testSurface
+                </div>
+            </div>
+            <div class="card fade-in" style="border-left:3px solid var(--teal)">
+                <h3><span class="icon-circle ic-teal">📋</span> Résultat</h3>
+                <div class="cmd-block">PHPUnit 9.5.26 by Sebastian Bergmann and contributors.
+                    . 1 / 1 (100%)
+
+                    Time: 00:00.022, Memory: 4.00 MB
+
+                    <span style="color:var(--green);font-weight:700">OK (1 test, 1 assertion)</span>
+                </div>
+                <p style="margin-top:.8rem">Le résultat indique : nombre de tests, temps d'exécution, et
+                    <strong>status</strong> (OK ou Failure).
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. EXPECT EXCEPTION -->
+    <section id="exceptions">
+        <div class="container fade-in">
+            <span class="section-label label-red">📌 Section 7</span>
+            <h2 class="section-title">⚠️ Tester les Exceptions</h2>
+            <p class="section-desc">Utiliser <code>expectException</code> pour vérifier qu'une exception est bien levée.
+            </p>
+            <div class="card" style="border-left:3px solid var(--red)">
+                <h3><span class="icon-circle ic-red">⚠️</span> expectException</h3>
+                <div class="cmd-block" style="color:var(--text)"><span style="color:var(--purple)">public
+                        function</span> <span style="color:var(--blue)">testSetCote</span>()
+                    {
+                    $this-><span style="color:var(--red)">expectException</span>(Exception::class);
+                    $objet = <span style="color:var(--purple)">new</span> Carre(<span
+                        style="color:var(--red)">-23</span>);
+                    }</div>
+                <p style="margin-top:.8rem">Le test <strong>réussit</strong> si l'exception est levée. Il
+                    <strong>échoue</strong> si aucune exception n'est lancée.
+                </p>
+            </div>
+            <div class="callout callout-red fade-in" style="margin-top:1rem">
+                🔴 Ici, le test réussit car <code>setCote(-23)</code> lance bien une exception pour une valeur négative.
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. DATA PROVIDERS -->
+    <section id="dataproviders">
+        <div class="container fade-in">
+            <span class="section-label label-yellow">📌 Section 8</span>
+            <h2 class="section-title">📊 Data Providers</h2>
+            <p class="section-desc">Tester plusieurs valeurs avec une seule méthode grâce aux fournisseurs de données.
+            </p>
+            <div class="card" style="border-left:3px solid var(--yellow);margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-yellow">📊</span> @dataProvider</h3>
+                <div class="cmd-block" style="color:var(--text)"><span class="comment">/**
+                        * @dataProvider dataForTestSurface
+                        */</span>
+                    <span style="color:var(--purple)">public function</span> <span
+                        style="color:var(--blue)">testSurface</span>($cote, $resultatAttendu)
+                    {
+                    $object = <span style="color:var(--purple)">new</span> Carre();
+                    $object->setCote($cote);
+                    $this-><span style="color:var(--teal)">assertEquals</span>($resultatAttendu, $object->surface());
+                    }
+
+                    <span style="color:var(--purple)">public function</span> <span
+                        style="color:var(--blue)">dataForTestSurface</span>()
+                    {
+                    <span style="color:var(--purple)">return</span> [
+                    [<span style="color:var(--yellow)">0</span>, <span style="color:var(--yellow)">0</span>],
+                    [<span style="color:var(--yellow)">10</span>, <span style="color:var(--yellow)">100</span>],
+                    [<span style="color:var(--yellow)">5</span>, <span style="color:var(--yellow)">25</span>]
+                    ];
+                    }
+                </div>
+            </div>
+            <div class="grid-3 fade-in">
+                <div class="card" style="text-align:center;border-top:3px solid var(--blue)">
+                    <div class="step-number"
+                        style="margin:0 auto .5rem;background:linear-gradient(135deg,var(--blue),var(--cyan))">1</div>
+                    <p style="font-size:.85rem"><strong>$cote = 0</strong><br>Attendu: 0</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--purple)">
+                    <div class="step-number"
+                        style="margin:0 auto .5rem;background:linear-gradient(135deg,var(--purple),var(--accent))">2
+                    </div>
+                    <p style="font-size:.85rem"><strong>$cote = 10</strong><br>Attendu: 100</p>
+                </div>
+                <div class="card" style="text-align:center;border-top:3px solid var(--green)">
+                    <div class="step-number"
+                        style="margin:0 auto .5rem;background:linear-gradient(135deg,var(--green),var(--teal))">3</div>
+                    <p style="font-size:.85rem"><strong>$cote = 5</strong><br>Attendu: 25</p>
+                </div>
+            </div>
+            <div class="callout callout-green fade-in" style="margin-top:1rem">✅ PHPUnit exécute le test <strong>3 fois
+                    automatiquement</strong>. Résultat : <code>OK (3 tests, 3 assertions)</code></div>
+        </div>
+    </section>
+
+    <!-- 9. CODE COVERAGE -->
+    <section id="coverage">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 9</span>
+            <h2 class="section-title">📊 Couverture de Code</h2>
+            <p class="section-desc">Mesure du pourcentage de code source exécuté lors des tests.</p>
+            <div class="grid-2" style="margin-bottom:1.5rem">
+                <div class="card" style="border-left:3px solid var(--purple)">
+                    <h3><span class="icon-circle ic-purple">📊</span> Code Coverage</h3>
+                    <p>Pourcentage de code exécuté pendant les tests. Plus la couverture est haute, moins de bugs non
+                        détectés.</p>
+                </div>
+                <div class="card" style="border-left:3px solid var(--orange)">
+                    <h3><span class="icon-circle ic-orange">⚠️</span> Important</h3>
+                    <p><strong>SonarQube ne génère PAS</strong> le rapport de couverture. PHPUnit génère le rapport,
+                        SonarScanner l'envoie à SonarQube.</p>
+                </div>
+            </div>
+            <div class="card fade-in" style="border-left:3px solid var(--teal)">
+                <h3><span class="icon-circle ic-teal">🔄</span> Workflow Couverture</h3>
+                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:.8rem 0">
+                    <div class="wf-step" style="background:var(--green-bg);color:var(--green)">🧪 PHPUnit</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--blue-bg);color:var(--blue)">📄 Rapport XML</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--purple-bg);color:var(--purple)">🔎 SonarScanner</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--teal-bg);color:var(--teal)">📊 Dashboard</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. XDEBUG -->
+    <section id="xdebug">
+        <div class="container fade-in">
+            <span class="section-label label-orange">📌 Section 10</span>
+            <h2 class="section-title">⚙️ Configuration Xdebug</h2>
+            <p class="section-desc">Installer et configurer Xdebug pour générer les rapports de couverture.</p>
+            <div class="grid-3" style="margin-bottom:1.5rem">
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--orange),var(--yellow))">
+                        1</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Télécharger Xdebug</h3>
+                    <p style="font-size:.82rem">Version compatible avec PHP</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--orange),var(--yellow))">
+                        2</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Déplacer le DLL</h3>
+                    <p style="font-size:.82rem">Dans php/ext/</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:40px;height:40px;font-size:1rem;background:linear-gradient(135deg,var(--orange),var(--yellow))">
+                        3</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Configurer php.ini</h3>
+                    <p style="font-size:.82rem">Ajouter les lignes Xdebug</p>
+                </div>
+            </div>
+            <div class="card fade-in" style="border-left:3px solid var(--orange)">
+                <h3><span class="icon-circle ic-orange">📝</span> Lignes à ajouter dans php.ini</h3>
+                <div class="cmd-block"><span class="comment"># Sous la section [XDebug]</span>
+                    zend_extension=xdebug
+                    xdebug.mode=coverage
+                    xdebug.start_with_request=trigger
+
+                    <span class="comment"># Désactiver output buffering</span>
+                    output_buffering = Off
+                </div>
+                <p style="margin-top:.6rem;font-size:.85rem">Puis <strong>redémarrer Apache</strong>.</p>
+            </div>
+            <div class="callout fade-in" style="margin-top:1rem">🔍 Vérifier l'installation :
+                <code>php -i | grep xdebug</code>
+            </div>
+        </div>
+    </section>
+
+    <!-- 11. GENERATE REPORT -->
+    <section id="rapports">
+        <div class="container fade-in">
+            <span class="section-label label-cyan">📌 Section 11</span>
+            <h2 class="section-title">📄 Générer les Rapports</h2>
+            <p class="section-desc">Produire les fichiers XML de couverture et d'exécution des tests.</p>
+            <div class="card" style="border-left:3px solid var(--cyan);margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-cyan">▶️</span> Commande de génération</h3>
+                <div class="cmd-block">XDEBUG_MODE=coverage vendor/bin/phpunit \
+                    --coverage-clover=phpunit-coverage-result.xml \
+                    --log-junit=phpunit-execution-result.xml</div>
+            </div>
+            <div class="card fade-in" style="border-left:3px solid var(--blue)">
+                <h3><span class="icon-circle ic-blue">📝</span> sonar-project.properties</h3>
+                <div class="cmd-block"><span class="comment"># Clé du projet</span>
+                    sonar.projectKey=monProjet
+                    sonar.projectBaseDir=.
+
+                    <span class="comment"># Exclusions</span>
+                    sonar.exclusion=vendor/**
+                    sonar.coverage.exclusions=tests/*
+
+                    <span class="comment"># Chemins des rapports</span>
+                    sonar.php.coverage.reportPaths=phpunit-coverage-result.xml
+                    sonar.php.tests.reportPath=phpunit-execution-result.xml
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 12. SONAR SCANNER -->
+    <section id="sonarqube">
+        <div class="container fade-in">
+            <span class="section-label label-blue">📌 Section 12</span>
+            <h2 class="section-title">🔎 Lancer SonarScanner</h2>
+            <p class="section-desc">Envoyer les rapports au serveur SonarQube.</p>
+            <div class="card" style="border-left:3px solid var(--blue);margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-blue">🚀</span> Commande SonarScanner</h3>
+                <div class="cmd-block">sonar-scanner.bat \
+                    -D"sonar.projectKey=monProjet" \
+                    -D"sonar.sources=." \
+                    -D"sonar.host.url=http://localhost:9000" \
+                    -D"sonar.login=VOTRE_TOKEN"</div>
+            </div>
+            <div class="card fade-in" style="border-left:3px solid var(--green)">
+                <h3><span class="icon-circle ic-green">📊</span> Résultats sur le Dashboard</h3>
+                <div class="grid-3" style="margin-top:.8rem;gap:.8rem">
+                    <div style="background:var(--green-bg);padding:1rem;border-radius:8px;text-align:center"><span
+                            style="font-size:1.3rem">📊</span>
+                        <p style="font-weight:700;color:var(--green);font-size:.85rem;margin-top:.3rem">Coverage %</p>
+                        <p style="font-size:.75rem">Pourcentage couvert</p>
+                    </div>
+                    <div style="background:var(--blue-bg);padding:1rem;border-radius:8px;text-align:center"><span
+                            style="font-size:1.3rem">✅</span>
+                        <p style="font-weight:700;color:var(--blue);font-size:.85rem;margin-top:.3rem">Lignes testées
+                        </p>
+                        <p style="font-size:.75rem">Code couvert (vert)</p>
+                    </div>
+                    <div style="background:var(--red-bg);padding:1rem;border-radius:8px;text-align:center"><span
+                            style="font-size:1.3rem">❌</span>
+                        <p style="font-weight:700;color:var(--red);font-size:.85rem;margin-top:.3rem">Lignes non testées
+                        </p>
+                        <p style="font-size:.75rem">Code non couvert (rouge)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 13. RESUME -->
+    <section id="resume">
+        <div class="container fade-in">
+            <span class="section-label label-teal">🎯 Conclusion</span>
+            <h2 class="section-title">Résumé — Structure du Chapitre</h2>
+            <div class="card" style="margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-teal">📋</span> Parcours complet</h3>
+                <div style="display:grid;gap:.5rem;margin-top:.8rem">
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--teal-bg);padding:.6rem 1rem;border-radius:8px">
+                        <span class="step-number" style="width:24px;height:24px;font-size:.7rem">1</span><span
+                            style="font-size:.85rem"><strong>Définition</strong> des tests unitaires</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--green-bg);padding:.6rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:24px;height:24px;font-size:.7rem;background:linear-gradient(135deg,var(--green),var(--cyan))">2</span><span
+                            style="font-size:.85rem"><strong>PHPUnit</strong> — framework de test</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--blue-bg);padding:.6rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:24px;height:24px;font-size:.7rem;background:linear-gradient(135deg,var(--blue),var(--cyan))">3</span><span
+                            style="font-size:.85rem"><strong>Assertions</strong> — assertEquals</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--red-bg);padding:.6rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:24px;height:24px;font-size:.7rem;background:linear-gradient(135deg,var(--red),var(--orange))">4</span><span
+                            style="font-size:.85rem"><strong>Exceptions</strong> — expectException</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--yellow-bg);padding:.6rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:24px;height:24px;font-size:.7rem;background:linear-gradient(135deg,var(--yellow),var(--orange))">5</span><span
+                            style="font-size:.85rem"><strong>Data Providers</strong> — jeux de données</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--purple-bg);padding:.6rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:24px;height:24px;font-size:.7rem;background:linear-gradient(135deg,var(--purple),var(--accent))">6</span><span
+                            style="font-size:.85rem"><strong>Code Coverage</strong> — couverture</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--orange-bg);padding:.6rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:24px;height:24px;font-size:.7rem;background:linear-gradient(135deg,var(--orange),var(--red))">7</span><span
+                            style="font-size:.85rem"><strong>Xdebug</strong> — configuration</span>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:.8rem;background:var(--cyan-bg);padding:.6rem 1rem;border-radius:8px">
+                        <span class="step-number"
+                            style="width:24px;height:24px;font-size:.7rem;background:linear-gradient(135deg,var(--cyan),var(--blue))">8</span><span
+                            style="font-size:.85rem"><strong>SonarQube</strong> — intégration et résultats</span>
+                    </div>
+                </div>
+            </div>
+            <div class="callout callout-green fade-in">🎯 <strong>Les tests unitaires sont essentiels</strong> pour
+                garantir la qualité du code, faciliter le refactoring et détecter les régressions dans un contexte
+                Agile.</div>
+        </div>
+    </section>
+
+    <!-- NAV LINKS -->
+    <section style="padding:3rem 0">
+        <div class="container fade-in">
+            <div class="grid-2">
+                <a href="5.%20Approche%20Agile_gestion%20de%20version%20et%20qualité%20du%20code.html"
+                    style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;gap:1rem;border:1px solid rgba(249,115,22,.3);background:linear-gradient(135deg,var(--card),rgba(249,115,22,.08));cursor:pointer">
+                        <div style="font-size:1.5rem;color:var(--orange)">←</div>
+                        <div><span class="section-label label-orange"
+                                style="margin-bottom:.3rem;font-size:.65rem">Chapitre précédent</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">Git & SonarQube</h3>
+                        </div>
+                    </div>
+                </a>
+                <a href="7.%20Approche%20agile_DevOps.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:flex-end;gap:1rem;border:1px solid rgba(6,182,212,.3);background:linear-gradient(135deg,var(--card),rgba(6,182,212,.08));cursor:pointer;text-align:right">
+                        <div><span class="section-label label-cyan"
+                                style="margin-bottom:.3rem;font-size:.65rem">Chapitre
+                                suivant</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">DevOps & GitLab CI/CD</h3>
+                        </div>
+                        <div style="font-size:1.5rem;color:var(--cyan)">→</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>📘 Module Approche Agile — Chapitre 6 : Tests Unitaires & Couverture de Code | Stagiaire : Youssef NAJIMI |
+            DEVOWFS</p>
+        <p style="margin-top:.5rem"><a href="1.%20Approche%20agile_Introduction.html">← Retour au module principal</a>
+        </p>
+    </footer>
+
+    <script>
+        const obs = new IntersectionObserver(e => { e.forEach(e => { e.isIntersecting && e.target.classList.add('visible') }) }, { threshold: .1 });
+        document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    </script>
+</body>
+
+</html>

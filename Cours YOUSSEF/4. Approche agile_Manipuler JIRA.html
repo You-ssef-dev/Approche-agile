@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIRA — Outil de Gestion Agile</title>
+    <meta name="description"
+        content="Chapitre 4 : Manipuler Jira — Tickets, Sprints, Backlog, Roadmap et Rapports Agile.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --bg: #0a0e1a;
+            --surface: #111827;
+            --card: #1a2236;
+            --card-hover: #1e2a42;
+            --border: #2a3550;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, .15);
+            --green: #10b981;
+            --green-bg: rgba(16, 185, 129, .1);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, .1);
+            --yellow: #f59e0b;
+            --yellow-bg: rgba(245, 158, 11, .1);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59, 130, 246, .1);
+            --purple: #a855f7;
+            --purple-bg: rgba(168, 85, 247, .1);
+            --cyan: #06b6d4;
+            --cyan-bg: rgba(6, 182, 212, .1);
+            --orange: #f97316;
+            --orange-bg: rgba(249, 115, 22, .1);
+            --radius: 12px;
+            --transition: .3s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden
+        }
+
+        a {
+            color: var(--accent-light);
+            text-decoration: none
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent)
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 14, 26, .85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px
+        }
+
+        .nav-logo {
+            font-weight: 800;
+            font-size: 1.15rem;
+            background: linear-gradient(135deg, var(--accent-light), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            font-size: .85rem;
+            font-weight: 500;
+            transition: color var(--transition)
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-light)
+        }
+
+        .nav-select {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .15), rgba(168, 85, 247, .15));
+            color: var(--accent-light);
+            border: 1px solid rgba(99, 102, 241, .35);
+            border-radius: 8px;
+            padding: .4rem .8rem .4rem .6rem;
+            font-family: 'Inter', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all .3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23818cf8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .6rem center;
+            padding-right: 1.8rem
+        }
+
+        .nav-select:hover {
+            border-color: var(--accent-light);
+            background: linear-gradient(135deg, rgba(99, 102, 241, .25), rgba(168, 85, 247, .25))
+        }
+
+        .nav-select option {
+            background: var(--surface);
+            color: var(--text);
+            padding: .5rem
+        }
+
+        .hero {
+            padding: 10rem 2rem 5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(59, 130, 246, .15) 0%, transparent 70%);
+            pointer-events: none
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: .4rem 1rem;
+            border-radius: 50px;
+            background: var(--blue-bg);
+            border: 1px solid rgba(59, 130, 246, .3);
+            color: var(--blue);
+            font-size: .8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 1rem
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--blue), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 2rem
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem
+        }
+
+        section {
+            padding: 4rem 0
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .35rem .9rem;
+            border-radius: 50px;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 1rem
+        }
+
+        .label-blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+            border: 1px solid rgba(59, 130, 246, .25)
+        }
+
+        .label-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid rgba(16, 185, 129, .25)
+        }
+
+        .label-purple {
+            background: var(--purple-bg);
+            color: var(--purple);
+            border: 1px solid rgba(168, 85, 247, .25)
+        }
+
+        .label-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+            border: 1px solid rgba(245, 158, 11, .25)
+        }
+
+        .label-red {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, .25)
+        }
+
+        .label-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan);
+            border: 1px solid rgba(6, 182, 212, .25)
+        }
+
+        .label-orange {
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid rgba(249, 115, 22, .25)
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: .5rem
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+            max-width: 700px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            transition: all var(--transition)
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, .08)
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: .6rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .card p,
+        .card li {
+            color: var(--text-muted);
+            font-size: .92rem
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0
+        }
+
+        .card ul li {
+            padding: .3rem 0;
+            padding-left: 1.4rem;
+            position: relative
+        }
+
+        .card ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent-light)
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem
+        }
+
+        .icon-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0
+        }
+
+        .ic-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .ic-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .ic-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .ic-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .ic-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .ic-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .ic-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .tag {
+            display: inline-block;
+            padding: .25rem .7rem;
+            border-radius: 6px;
+            font-size: .78rem;
+            font-weight: 600
+        }
+
+        .tag-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .tag-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .tag-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .tag-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .tag-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .tag-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .tag-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .callout {
+            border-left: 3px solid var(--accent);
+            background: var(--accent-glow);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            margin: 1.5rem 0;
+            font-size: .92rem
+        }
+
+        .callout-green {
+            border-left-color: var(--green);
+            background: var(--green-bg)
+        }
+
+        .callout-yellow {
+            border-left-color: var(--yellow);
+            background: var(--yellow-bg)
+        }
+
+        .callout-red {
+            border-left-color: var(--red);
+            background: var(--red-bg)
+        }
+
+        .callout-blue {
+            border-left-color: var(--blue);
+            background: var(--blue-bg)
+        }
+
+        .callout-purple {
+            border-left-color: var(--purple);
+            background: var(--purple-bg)
+        }
+
+        .styled-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border)
+        }
+
+        .styled-table thead {
+            background: linear-gradient(135deg, var(--blue), #0284c7)
+        }
+
+        .styled-table th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: .9rem;
+            color: #fff;
+            letter-spacing: .5px
+        }
+
+        .styled-table td {
+            padding: .9rem 1.5rem;
+            font-size: .9rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none
+        }
+
+        .styled-table tbody tr {
+            background: var(--card);
+            transition: background var(--transition)
+        }
+
+        .styled-table tbody tr:hover {
+            background: var(--card-hover)
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue), var(--cyan));
+            color: #fff;
+            font-size: .8rem;
+            font-weight: 800;
+            flex-shrink: 0
+        }
+
+        /* Workflow */
+        .workflow {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0
+        }
+
+        .wf-step {
+            padding: .6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: .85rem;
+            position: relative
+        }
+
+        .wf-arrow {
+            color: var(--text-dim);
+            font-size: 1.3rem;
+            font-weight: 800
+        }
+
+        /* Ticket type cards */
+        .ticket-card {
+            position: relative;
+            overflow: hidden
+        }
+
+        .ticket-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: .8rem
+        }
+
+        /* Sprint board visual */
+        .board-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0
+        }
+
+        .board-cols {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem
+        }
+
+        .board-col {
+            background: rgba(255, 255, 255, .02);
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 120px
+        }
+
+        .board-col-header {
+            font-size: .85rem;
+            font-weight: 700;
+            margin-bottom: .8rem;
+            padding: .4rem .6rem;
+            border-radius: 6px;
+            text-align: center
+        }
+
+        .board-ticket {
+            background: var(--card-hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .6rem .8rem;
+            margin-bottom: .5rem;
+            font-size: .8rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            transition: all var(--transition)
+        }
+
+        .board-ticket:hover {
+            border-color: var(--accent);
+            transform: translateX(3px)
+        }
+
+        .board-ticket-key {
+            font-weight: 700;
+            color: var(--blue);
+            font-size: .75rem
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: .85rem;
+            margin-top: 4rem
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 3rem
+            }
+
+            .section-title {
+                font-size: 1.5rem
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr
+            }
+
+            .board-cols {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .6s ease, transform .6s ease
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-logo">📘 Gestion de Projet</div>
+            <ul class="nav-links">
+                <li><a href="1.%20Approche%20agile_Introduction.html">← Retour</a></li>
+                <li><a href="#presentation">Jira</a></li>
+                <li><a href="#tickets">Tickets</a></li>
+                <li><a href="#backlog">Backlog</a></li>
+                <li><a href="#sprint">Sprint</a></li>
+                <li><a href="#board">Board</a></li>
+                <li><a href="#roadmap">Roadmap</a></li>
+                <li><a href="#rapports">Rapports</a></li>
+                <li>
+                    <select class="nav-select" onchange="if(this.value)window.location.href=this.value">
+                        <option value="">📚 Chapitres</option>
+                        <option value="1.%20Approche%20agile_Introduction.html">📖 Introduction</option>
+                        <option value="2.%20Approche%20agile_Préparer%20un%20projet.html">📊 PERT & Gantt</option>
+                        <option value="3.%20Approche%20agile_SCRUM.html">🔄 Scrum</option>
+                        <option value="4.%20Approche%20agile_Manipuler%20JIRA.html">🔧 Jira</option>
+                        <option value="5.%20Approche%20Agile_gestion%20de%20version%20et%20qualité%20du%20code.html">🔀
+                            Git & SonarQube</option>
+                        <option value="6.%20Approche%20Agile_tests%20unitaires%20et%20couverture%20de%20code.html">🧪
+                            Tests Unitaires</option>
+                        <option value="7.%20Approche%20agile_DevOps.html">🔄 DevOps & CI/CD</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="hero-badge">📌 Chapitre 4 — Module Approche Agile</div>
+        <h1>Manipuler <span>JIRA</span></h1>
+        <p>L'outil de gestion de projet Agile d'Atlassian : créer des projets Scrum, gérer le backlog, planifier des
+            sprints et générer des rapports.</p>
+        <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1rem">
+            <span class="tag tag-blue">🎫 Tickets</span>
+            <span class="tag tag-green">📋 Backlog</span>
+            <span class="tag tag-purple">🏃 Sprints</span>
+            <span class="tag tag-yellow">🗺️ Roadmap</span>
+            <span class="tag tag-cyan">📊 Rapports</span>
+        </div>
+    </header>
+
+    <!-- 1. PRÉSENTATION DE JIRA -->
+    <section id="presentation">
+        <div class="container fade-in">
+            <span class="section-label label-blue">📌 Section 1</span>
+            <h2 class="section-title">🔷 Qu'est-ce que Jira ?</h2>
+            <p class="section-desc">Outil de gestion de projet créé par Atlassian, utilisé principalement par les
+                équipes Agile (Scrum/Kanban).</p>
+
+            <div class="grid-3">
+                <div class="card">
+                    <h3><span class="icon-circle ic-blue">📋</span> Gestion Visuelle</h3>
+                    <p>Gérez les tâches visuellement avec des tableaux Scrum et Kanban intuitifs.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-green">🏃</span> Sprints & Backlog</h3>
+                    <p>Planifiez des sprints, gérez le backlog et suivez l'avancement de l'équipe.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-purple">📊</span> Rapports Agile</h3>
+                    <p>Générez des rapports automatiques : burndown, vélocité, camemberts.</p>
+                </div>
+            </div>
+
+            <div class="callout callout-blue fade-in" style="margin-top:1.5rem">
+                💡 Jira est disponible en <strong>version Cloud gratuite</strong> sur <a
+                    href="https://www.atlassian.com/fr/software/jira/free"
+                    target="_blank">atlassian.com/fr/software/jira/free</a> et en version Desktop.
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. TICKETS -->
+    <section id="tickets">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 2</span>
+            <h2 class="section-title">🎫 Les Tickets Jira</h2>
+            <p class="section-desc">Un ticket est une tâche à réaliser. Il existe 4 types principaux de tickets.</p>
+
+            <div class="grid-4">
+                <div class="card ticket-card" style="border-top:3px solid var(--purple)">
+                    <div class="ticket-icon" style="background:var(--purple-bg);color:var(--purple)">⚡</div>
+                    <h3>Epic</h3>
+                    <p>Grand objectif du projet regroupant plusieurs stories et tâches.</p>
+                    <span class="tag tag-purple" style="margin-top:.5rem">Objectif global</span>
+                </div>
+                <div class="card ticket-card" style="border-top:3px solid var(--green)">
+                    <div class="ticket-icon" style="background:var(--green-bg);color:var(--green)">📖</div>
+                    <h3>Story</h3>
+                    <p>Fonctionnalité exprimée du point de vue utilisateur (User Story).</p>
+                    <span class="tag tag-green" style="margin-top:.5rem">Fonctionnalité</span>
+                </div>
+                <div class="card ticket-card" style="border-top:3px solid var(--blue)">
+                    <div class="ticket-icon" style="background:var(--blue-bg);color:var(--blue)">✅</div>
+                    <h3>Task</h3>
+                    <p>Tâche technique à réaliser par l'équipe de développement.</p>
+                    <span class="tag tag-blue" style="margin-top:.5rem">Tâche technique</span>
+                </div>
+                <div class="card ticket-card" style="border-top:3px solid var(--red)">
+                    <div class="ticket-icon" style="background:var(--red-bg);color:var(--red)">🐛</div>
+                    <h3>Bug</h3>
+                    <p>Problème ou défaut identifié dans le produit à corriger.</p>
+                    <span class="tag tag-red" style="margin-top:.5rem">Problème</span>
+                </div>
+            </div>
+
+            <!-- Workflow -->
+            <div class="card fade-in" style="margin-top:2rem">
+                <h3><span class="icon-circle ic-cyan">🔄</span> Workflow d'un Ticket</h3>
+                <p style="margin-bottom:.8rem">Chaque ticket passe par des étapes de workflow :</p>
+                <div class="workflow">
+                    <div class="wf-step" style="background:var(--blue-bg);color:var(--blue)">📥 To Do</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--yellow-bg);color:var(--yellow)">🔨 In Progress</div>
+                    <div class="wf-arrow">→</div>
+                    <div class="wf-step" style="background:var(--green-bg);color:var(--green)">✅ Done</div>
+                </div>
+                <p style="font-size:.85rem;color:var(--text-dim)">Vous pouvez personnaliser les colonnes de workflow
+                    selon les besoins de votre équipe.</p>
+            </div>
+
+            <!-- Project & Key -->
+            <div class="grid-2 fade-in" style="margin-top:1.5rem">
+                <div class="card">
+                    <h3><span class="icon-circle ic-blue">🗂️</span> Qu'est-ce qu'un Projet ?</h3>
+                    <p>Un projet regroupe tous les tickets. Chaque projet possède une <strong>clé unique</strong>.</p>
+                    <div style="display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap">
+                        <span class="tag tag-blue" style="font-family:monospace;font-size:.85rem">WEB-1</span>
+                        <span class="tag tag-blue" style="font-family:monospace;font-size:.85rem">WEB-2</span>
+                        <span class="tag tag-blue" style="font-family:monospace;font-size:.85rem">FS-1</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-yellow">📐</span> Estimation (Story Points)</h3>
+                    <p>Les <strong>Story Points</strong> mesurent la complexité relative d'un ticket par rapport aux
+                        autres.</p>
+                    <div style="display:flex;gap:.4rem;margin-top:.8rem;flex-wrap:wrap">
+                        <span class="tag tag-green">1 SP</span>
+                        <span class="tag tag-green">2 SP</span>
+                        <span class="tag tag-yellow">3 SP</span>
+                        <span class="tag tag-yellow">5 SP</span>
+                        <span class="tag tag-orange">8 SP</span>
+                        <span class="tag tag-red">13 SP</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. CRÉATION COMPTE & PROJET -->
+    <section id="setup">
+        <div class="container fade-in">
+            <span class="section-label label-green">📌 Section 3</span>
+            <h2 class="section-title">🚀 Création du Compte & Projet</h2>
+            <p class="section-desc">Les étapes pour démarrer avec Jira Cloud et créer un projet Scrum.</p>
+
+            <div class="grid-2">
+                <div class="card" style="border-left:3px solid var(--blue)">
+                    <h3><span class="icon-circle ic-blue">☁️</span> Jira Cloud (Recommandé)</h3>
+                    <ul>
+                        <li>Aller sur <strong>atlassian.com/fr/software/jira/free</strong></li>
+                        <li>Se connecter avec un compte mail</li>
+                        <li>Confirmer le compte</li>
+                        <li>Créer un projet Agile Scrum</li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--purple)">
+                    <h3><span class="icon-circle ic-purple">🖥️</span> Jira Desktop</h3>
+                    <ul>
+                        <li>Télécharger depuis atlassian.com</li>
+                        <li>Accès via <code
+                                style="background:var(--card-hover);padding:.1rem .3rem;border-radius:4px;font-size:.8rem">localhost:8080</code>
+                        </li>
+                        <li>Mêmes étapes de configuration</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Création Projet Steps -->
+            <h3 style="font-size:1.2rem;font-weight:700;margin:2rem 0 1rem;color:var(--green)">📋 Étapes de création du
+                Projet Scrum</h3>
+            <div class="grid-4 fade-in">
+                <div class="card" style="text-align:center">
+                    <div class="step-number" style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem">1</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Nom du Projet</h3>
+                    <p style="font-size:.82rem">Saisir le nom et l'email professionnel</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number" style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem">2</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Modèle Scrum</h3>
+                    <p style="font-size:.82rem">Choisir le template Scrum</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number" style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem">3</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Clé du Projet</h3>
+                    <p style="font-size:.82rem">Définir la clé unique (ex: WEB)</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number" style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem">4</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Inviter l'Équipe</h3>
+                    <p style="font-size:.82rem">Ajouter les membres par email</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. BACKLOG -->
+    <section id="backlog">
+        <div class="container fade-in">
+            <span class="section-label label-yellow">📌 Section 4</span>
+            <h2 class="section-title">📋 Le Backlog Product</h2>
+            <p class="section-desc">Liste ordonnée de toutes les tâches et fonctionnalités du produit.</p>
+
+            <div class="card" style="margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-yellow">📋</span> Caractéristiques du Backlog</h3>
+                <div class="grid-2" style="margin-top:.8rem;gap:1rem">
+                    <div style="background:var(--blue-bg);padding:1rem;border-radius:8px">
+                        <p style="font-weight:700;color:var(--blue);margin-bottom:.3rem">📑 Contenu</p>
+                        <ul>
+                            <li>Epics (objectifs globaux)</li>
+                            <li>Stories (fonctionnalités)</li>
+                            <li>Tasks (tâches techniques)</li>
+                            <li>Bugs (problèmes)</li>
+                        </ul>
+                    </div>
+                    <div style="background:var(--green-bg);padding:1rem;border-radius:8px">
+                        <p style="font-weight:700;color:var(--green);margin-bottom:.3rem">⚙️ Fonctionnalités</p>
+                        <ul>
+                            <li>Estimation en Story Points</li>
+                            <li>Priorisation des tâches</li>
+                            <li>Assignation aux membres</li>
+                            <li>Préparation des sprints</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout callout-yellow fade-in">
+                ⚠️ Après la création du projet, un <strong>backlog vide</strong> est créé automatiquement. Il suffit de
+                cliquer dans le menu latéral pour y accéder.
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. AJOUT DE TICKETS -->
+    <section id="ajout-tickets">
+        <div class="container fade-in">
+            <span class="section-label label-orange">📌 Section 5</span>
+            <h2 class="section-title">➕ Ajout & Gestion des Tickets</h2>
+            <p class="section-desc">Créer, estimer, prioriser et assigner les tickets dans le backlog.</p>
+
+            <!-- Steps -->
+            <div class="grid-3">
+                <div class="card">
+                    <h3><span class="step-number">1</span> Créer un ticket</h3>
+                    <p>Cliquer sur <strong>Créer</strong> dans la barre de navigation et choisir le type : Epic, Story,
+                        Task ou Bug.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">2</span> Nom & Description</h3>
+                    <p>Donner un nom et une description au ticket. Le ticket reçoit une clé automatique (ex: <code
+                            style="background:var(--card-hover);padding:.1rem .3rem;border-radius:4px;font-size:.8rem">FS-1</code>).
+                    </p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">3</span> Estimation</h3>
+                    <p>Estimer la durée avec des <strong>Story Points</strong> qui mesurent la complexité relative.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">4</span> Assignation</h3>
+                    <p>Assigner le ticket à un <strong>membre de l'équipe</strong> en cliquant sur l'icône utilisateur.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">5</span> Priorité</h3>
+                    <p>Changer l'ordre des tickets selon l'importance avec <strong>Ctrl + glisser</strong>.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">6</span> Organiser en Epics</h3>
+                    <p>Glisser les tickets sous les Epics correspondantes via le <strong>panneau des Epics</strong>.</p>
+                </div>
+            </div>
+
+            <!-- Tasks & Sub-tasks -->
+            <div class="card fade-in" style="margin-top:1.5rem">
+                <h3><span class="icon-circle ic-blue">📁</span> Tâches & Sous-tâches</h3>
+                <p>Une tâche peut contenir des <strong>sous-tâches</strong> (tickets-enfants). Pour en créer, cliquer
+                    sur <strong>Ajouter un ticket-enfant</strong>.</p>
+                <div style="display:flex;align-items:center;gap:1rem;margin-top:.8rem;flex-wrap:wrap">
+                    <div
+                        style="background:var(--blue-bg);padding:.5rem 1rem;border-radius:8px;display:flex;align-items:center;gap:.5rem">
+                        <span style="font-weight:700;color:var(--blue)">📁 Tâche</span>
+                    </div>
+                    <span style="color:var(--text-dim)">contient</span>
+                    <div
+                        style="background:var(--cyan-bg);padding:.5rem 1rem;border-radius:8px;display:flex;align-items:center;gap:.5rem">
+                        <span style="font-weight:700;color:var(--cyan)">📄 Sous-tâche 1</span>
+                    </div>
+                    <div
+                        style="background:var(--cyan-bg);padding:.5rem 1rem;border-radius:8px;display:flex;align-items:center;gap:.5rem">
+                        <span style="font-weight:700;color:var(--cyan)">📄 Sous-tâche 2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. SPRINT PLANNING -->
+    <section id="sprint">
+        <div class="container fade-in">
+            <span class="section-label label-cyan">📌 Section 6</span>
+            <h2 class="section-title">🏃 Planification du Sprint</h2>
+            <p class="section-desc">Démarrer un sprint et définir ses paramètres.</p>
+
+            <div class="card" style="border-left:3px solid var(--cyan);margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-cyan">🚀</span> Démarrer un Sprint</h3>
+                <p style="margin-bottom:1rem">Cliquer sur <strong>Start Sprint</strong> et configurer :</p>
+                <div class="grid-4" style="gap:.8rem">
+                    <div style="background:var(--blue-bg);padding:.8rem;border-radius:8px;text-align:center">
+                        <span style="font-size:1.3rem">📝</span>
+                        <p style="font-weight:700;color:var(--blue);font-size:.85rem;margin-top:.3rem">Nom</p>
+                    </div>
+                    <div style="background:var(--green-bg);padding:.8rem;border-radius:8px;text-align:center">
+                        <span style="font-size:1.3rem">⏱️</span>
+                        <p style="font-weight:700;color:var(--green);font-size:.85rem;margin-top:.3rem">Durée</p>
+                    </div>
+                    <div style="background:var(--purple-bg);padding:.8rem;border-radius:8px;text-align:center">
+                        <span style="font-size:1.3rem">📅</span>
+                        <p style="font-weight:700;color:var(--purple);font-size:.85rem;margin-top:.3rem">Date début</p>
+                    </div>
+                    <div style="background:var(--yellow-bg);padding:.8rem;border-radius:8px;text-align:center">
+                        <span style="font-size:1.3rem">🏁</span>
+                        <p style="font-weight:700;color:var(--yellow);font-size:.85rem;margin-top:.3rem">Date fin</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout callout-green fade-in">
+                ✅ Déplacez les tickets du <strong>Backlog</strong> vers le <strong>Sprint</strong> pour définir le
+                périmètre de travail de l'itération.
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. SPRINT BOARD -->
+    <section id="board">
+        <div class="container fade-in">
+            <span class="section-label label-green">📌 Section 7</span>
+            <h2 class="section-title">📊 Tableau de Bord du Sprint</h2>
+            <p class="section-desc">Visualiser et gérer l'avancement des tâches pendant le sprint.</p>
+
+            <!-- Visual Board -->
+            <div class="board-container">
+                <h3 style="margin-bottom:1rem;font-size:1rem"><span class="icon-circle ic-blue"
+                        style="width:32px;height:32px;font-size:.9rem;margin-right:.5rem">📋</span> Sprint Board —
+                    Exemple</h3>
+                <div class="board-cols">
+                    <div class="board-col">
+                        <div class="board-col-header" style="background:var(--blue-bg);color:var(--blue)">📥 To Do</div>
+                        <div class="board-ticket"><span class="board-ticket-key">WEB-4</span> Design maquettes</div>
+                        <div class="board-ticket"><span class="board-ticket-key">WEB-5</span> Rédiger specs API</div>
+                    </div>
+                    <div class="board-col">
+                        <div class="board-col-header" style="background:var(--yellow-bg);color:var(--yellow)">🔨 In
+                            Progress</div>
+                        <div class="board-ticket"><span class="board-ticket-key">WEB-2</span> Page de login</div>
+                        <div class="board-ticket"><span class="board-ticket-key">WEB-3</span> Base de données</div>
+                    </div>
+                    <div class="board-col">
+                        <div class="board-col-header" style="background:var(--green-bg);color:var(--green)">✅ Done</div>
+                        <div class="board-ticket"><span class="board-ticket-key">WEB-1</span> Setup projet</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2 fade-in">
+                <div class="card">
+                    <h3><span class="icon-circle ic-green">🔄</span> Actions possibles</h3>
+                    <ul>
+                        <li><strong>Glisser-déposer</strong> les tickets entre colonnes</li>
+                        <li>Ajouter de <strong>nouvelles colonnes</strong> de workflow</li>
+                        <li><strong>Terminer le sprint</strong> et transférer les tickets non finis</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-purple">⚡</span> Personnalisation</h3>
+                    <ul>
+                        <li>Colonnes personnalisables (Review, Testing…)</li>
+                        <li>Filtres par assigné ou par Epic</li>
+                        <li>Vue détaillée de chaque ticket</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. ROADMAP -->
+    <section id="roadmap">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 8</span>
+            <h2 class="section-title">🗺️ Feuille de Route (Roadmap)</h2>
+            <p class="section-desc">Visualisation à long terme des Epics et de la planification du projet.</p>
+
+            <!-- Roadmap Visual -->
+            <div class="board-container">
+                <h3 style="margin-bottom:1.2rem;font-size:1rem"><span class="icon-circle ic-purple"
+                        style="width:32px;height:32px;font-size:.9rem;margin-right:.5rem">🗺️</span> Roadmap — Vue
+                    visuelle</h3>
+                <svg width="100%" height="180" viewBox="0 0 700 180" style="max-width:100%">
+                    <!-- Timeline header -->
+                    <text x="120" y="20" fill="var(--text-dim)" font-size="10" font-weight="600">Semaine 1</text>
+                    <text x="270" y="20" fill="var(--text-dim)" font-size="10" font-weight="600">Semaine 2</text>
+                    <text x="420" y="20" fill="var(--text-dim)" font-size="10" font-weight="600">Semaine 3</text>
+                    <text x="570" y="20" fill="var(--text-dim)" font-size="10" font-weight="600">Semaine 4</text>
+                    <line x1="100" y1="28" x2="680" y2="28" stroke="var(--border)" stroke-width="1" />
+
+                    <!-- Epic 1 -->
+                    <text x="10" y="58" fill="var(--purple)" font-size="11" font-weight="700">⚡ Epic 1</text>
+                    <rect x="100" y="40" width="300" height="28" rx="6" fill="rgba(168,85,247,.2)"
+                        stroke="var(--purple)" stroke-width="1.5" />
+                    <text x="250" y="58" text-anchor="middle" fill="var(--purple)" font-size="10"
+                        font-weight="600">Authentification</text>
+
+                    <!-- Epic 2 -->
+                    <text x="10" y="98" fill="var(--blue)" font-size="11" font-weight="700">⚡ Epic 2</text>
+                    <rect x="200" y="80" width="350" height="28" rx="6" fill="rgba(59,130,246,.2)" stroke="var(--blue)"
+                        stroke-width="1.5" />
+                    <text x="375" y="98" text-anchor="middle" fill="var(--blue)" font-size="10"
+                        font-weight="600">Dashboard Utilisateur</text>
+
+                    <!-- Epic 3 -->
+                    <text x="10" y="138" fill="var(--green)" font-size="11" font-weight="700">⚡ Epic 3</text>
+                    <rect x="420" y="120" width="260" height="28" rx="6" fill="rgba(16,185,129,.2)"
+                        stroke="var(--green)" stroke-width="1.5" />
+                    <text x="550" y="138" text-anchor="middle" fill="var(--green)" font-size="10"
+                        font-weight="600">Rapports & Analytics</text>
+
+                    <!-- Dependency arrow -->
+                    <path d="M 400 68 Q 410 74 410 80" fill="none" stroke="var(--yellow)" stroke-width="1.5"
+                        stroke-dasharray="4,2" marker-end="url(#depArr)" />
+                    <defs>
+                        <marker id="depArr" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                            <polygon points="0 0,6 2.5,0 5" fill="var(--yellow)" />
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+
+            <div class="grid-3 fade-in">
+                <div class="card">
+                    <h3><span class="step-number">1</span> Créer les Epics</h3>
+                    <p>Créer des Epics directement depuis la feuille de route.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">2</span> Dates & Détails</h3>
+                    <p>Ajouter dates de début/fin, responsable et pièces jointes.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">3</span> Tickets enfants</h3>
+                    <p>Ajouter des tickets enfants aux Epics via le bouton <strong>+</strong>.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">4</span> Durée ajustable</h3>
+                    <p>Glisser les barres d'Epic pour modifier les dates de début et fin.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">5</span> Dépendances</h3>
+                    <p>Créer des liens de dépendance entre les tickets.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">6</span> Vue temporelle</h3>
+                    <p>Afficher la durée des tickets par <strong>jour</strong> ou par <strong>mois</strong>.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. RAPPORTS & DASHBOARD -->
+    <section id="rapports">
+        <div class="container fade-in">
+            <span class="section-label label-red">📌 Section 9</span>
+            <h2 class="section-title">📊 Rapports & Tableau de Bord</h2>
+            <p class="section-desc">Outils puissants pour visualiser les données rapidement et de manière fiable.</p>
+
+            <div class="card" style="margin-bottom:1.5rem;border-left:3px solid var(--blue)">
+                <h3><span class="icon-circle ic-blue">📊</span> Rapports Agile intégrés</h3>
+                <p style="margin-bottom:.8rem">Jira offre des rapports intégrés pour une vue générale des projets :</p>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                    <span class="tag tag-blue">📉 Sprint Burndown</span>
+                    <span class="tag tag-green">🟢 Intégrité du Sprint</span>
+                    <span class="tag tag-yellow">📊 Graphique à secteurs</span>
+                    <span class="tag tag-purple">📈 Graphique demandes</span>
+                    <span class="tag tag-cyan">⏱ Jours restants</span>
+                    <span class="tag tag-orange">📅 Ancienneté moyenne</span>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="card fade-in" style="margin-bottom:1.5rem;border-left:3px solid var(--purple)">
+                <h3><span class="icon-circle ic-purple">🎛️</span> Tableau de Bord personnalisable</h3>
+                <p style="margin-bottom:.8rem">Un tableau de bord utilise des <strong>gadgets</strong> — blocs visuels
+                    contenant des informations dynamiques :</p>
+                <div class="grid-3" style="margin-top:.8rem;gap:.8rem">
+                    <div style="background:var(--blue-bg);padding:1rem;border-radius:8px;text-align:center">
+                        <span style="font-size:1.5rem">📉</span>
+                        <p style="font-weight:700;color:var(--blue);font-size:.85rem;margin-top:.4rem">Sprint Burndown
+                        </p>
+                        <p style="font-size:.78rem;margin-top:.2rem">Avancement du sprint vs estimation</p>
+                    </div>
+                    <div style="background:var(--green-bg);padding:1rem;border-radius:8px;text-align:center">
+                        <span style="font-size:1.5rem">🟢</span>
+                        <p style="font-weight:700;color:var(--green);font-size:.85rem;margin-top:.4rem">Sprint Health
+                        </p>
+                        <p style="font-size:.78rem;margin-top:.2rem">État des tickets du sprint</p>
+                    </div>
+                    <div style="background:var(--yellow-bg);padding:1rem;border-radius:8px;text-align:center">
+                        <span style="font-size:1.5rem">⏱️</span>
+                        <p style="font-weight:700;color:var(--yellow);font-size:.85rem;margin-top:.4rem">Jours Restants
+                        </p>
+                        <p style="font-size:.78rem;margin-top:.2rem">Nombre de jours restants</p>
+                    </div>
+                    <div style="background:var(--purple-bg);padding:1rem;border-radius:8px;text-align:center">
+                        <span style="font-size:1.5rem">📊</span>
+                        <p style="font-weight:700;color:var(--purple);font-size:.85rem;margin-top:.4rem">Graphique
+                            Secteurs</p>
+                        <p style="font-size:.78rem;margin-top:.2rem">Répartition des tickets</p>
+                    </div>
+                    <div style="background:var(--cyan-bg);padding:1rem;border-radius:8px;text-align:center">
+                        <span style="font-size:1.5rem">📈</span>
+                        <p style="font-weight:700;color:var(--cyan);font-size:.85rem;margin-top:.4rem">Graphique
+                            Demandes</p>
+                        <p style="font-size:.78rem;margin-top:.2rem">Volume de demandes créées</p>
+                    </div>
+                    <div style="background:var(--orange-bg);padding:1rem;border-radius:8px;text-align:center">
+                        <span style="font-size:1.5rem">📅</span>
+                        <p style="font-weight:700;color:var(--orange);font-size:.85rem;margin-top:.4rem">Ancienneté
+                            Moyenne</p>
+                        <p style="font-size:.78rem;margin-top:.2rem">Jours tickets non résolus</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Dashboard Steps -->
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;color:var(--red)">📋 Créer un Tableau de Bord
+            </h3>
+            <div class="grid-4 fade-in">
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem;background:linear-gradient(135deg,var(--red),var(--orange))">
+                        1</div>
+                    <p style="font-size:.85rem;font-weight:600">Tableaux de bord → Créer</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem;background:linear-gradient(135deg,var(--red),var(--orange))">
+                        2</div>
+                    <p style="font-size:.85rem;font-weight:600">Nom & Description</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem;background:linear-gradient(135deg,var(--red),var(--orange))">
+                        3</div>
+                    <p style="font-size:.85rem;font-weight:600">Ajouter des Gadgets</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="step-number"
+                        style="margin:0 auto .8rem;width:36px;height:36px;font-size:.9rem;background:linear-gradient(135deg,var(--red),var(--orange))">
+                        4</div>
+                    <p style="font-size:.85rem;font-weight:600">Enregistrer</p>
+                </div>
+            </div>
+
+            <div class="callout fade-in" style="margin-top:1.5rem">
+                💡 Vous pouvez créer <strong>plusieurs tableaux de bord</strong> et personnaliser chaque gadget
+                (couleur, projet, filtre, période).
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. RÉSUMÉ -->
+    <section id="resume">
+        <div class="container fade-in">
+            <span class="section-label label-green">🎯 Conclusion</span>
+            <h2 class="section-title">Résumé — Jira en 9 étapes</h2>
+            <p class="section-desc">La structure complète du cours.</p>
+
+            <div class="board-container">
+                <svg width="100%" height="260" viewBox="0 0 800 260" style="max-width:100%">
+                    <!-- Row 1 -->
+                    <rect x="10" y="10" width="150" height="60" rx="8" fill="var(--blue-bg)" stroke="var(--blue)"
+                        stroke-width="1.5" />
+                    <text x="85" y="35" text-anchor="middle" fill="var(--blue)" font-size="10" font-weight="700">1.
+                        Présentation</text>
+                    <text x="85" y="52" text-anchor="middle" fill="var(--text-dim)" font-size="8">Jira basics</text>
+
+                    <text x="180" y="45" fill="var(--accent-light)" font-size="16" font-weight="800">→</text>
+
+                    <rect x="200" y="10" width="150" height="60" rx="8" fill="var(--green-bg)" stroke="var(--green)"
+                        stroke-width="1.5" />
+                    <text x="275" y="35" text-anchor="middle" fill="var(--green)" font-size="10" font-weight="700">2.
+                        Créer Compte</text>
+                    <text x="275" y="52" text-anchor="middle" fill="var(--text-dim)" font-size="8">Cloud /
+                        Desktop</text>
+
+                    <text x="370" y="45" fill="var(--accent-light)" font-size="16" font-weight="800">→</text>
+
+                    <rect x="390" y="10" width="150" height="60" rx="8" fill="var(--purple-bg)" stroke="var(--purple)"
+                        stroke-width="1.5" />
+                    <text x="465" y="35" text-anchor="middle" fill="var(--purple)" font-size="10" font-weight="700">3.
+                        Projet Scrum</text>
+                    <text x="465" y="52" text-anchor="middle" fill="var(--text-dim)" font-size="8">Template + Clé</text>
+
+                    <text x="560" y="45" fill="var(--accent-light)" font-size="16" font-weight="800">→</text>
+
+                    <rect x="580" y="10" width="150" height="60" rx="8" fill="var(--yellow-bg)" stroke="var(--yellow)"
+                        stroke-width="1.5" />
+                    <text x="655" y="35" text-anchor="middle" fill="var(--yellow)" font-size="10" font-weight="700">4.
+                        Backlog</text>
+                    <text x="655" y="52" text-anchor="middle" fill="var(--text-dim)" font-size="8">Epics +
+                        Stories</text>
+
+                    <!-- Row 2 -->
+                    <path d="M 730 70 Q 760 100 730 130" fill="none" stroke="var(--accent-light)" stroke-width="1.5"
+                        stroke-dasharray="4,2" />
+
+                    <rect x="580" y="100" width="150" height="60" rx="8" fill="var(--orange-bg)" stroke="var(--orange)"
+                        stroke-width="1.5" />
+                    <text x="655" y="125" text-anchor="middle" fill="var(--orange)" font-size="10" font-weight="700">5.
+                        Tickets</text>
+                    <text x="655" y="142" text-anchor="middle" fill="var(--text-dim)" font-size="8">Créer +
+                        Estimer</text>
+
+                    <text x="560" y="135" fill="var(--accent-light)" font-size="16" font-weight="800">←</text>
+
+                    <rect x="390" y="100" width="150" height="60" rx="8" fill="var(--cyan-bg)" stroke="var(--cyan)"
+                        stroke-width="1.5" />
+                    <text x="465" y="125" text-anchor="middle" fill="var(--cyan)" font-size="10" font-weight="700">6.
+                        Sprint</text>
+                    <text x="465" y="142" text-anchor="middle" fill="var(--text-dim)" font-size="8">Planification</text>
+
+                    <text x="370" y="135" fill="var(--accent-light)" font-size="16" font-weight="800">←</text>
+
+                    <rect x="200" y="100" width="150" height="60" rx="8" fill="var(--green-bg)" stroke="var(--green)"
+                        stroke-width="1.5" />
+                    <text x="275" y="125" text-anchor="middle" fill="var(--green)" font-size="10" font-weight="700">7.
+                        Sprint Board</text>
+                    <text x="275" y="142" text-anchor="middle" fill="var(--text-dim)" font-size="8">ToDo → Done</text>
+
+                    <text x="180" y="135" fill="var(--accent-light)" font-size="16" font-weight="800">←</text>
+
+                    <rect x="10" y="100" width="150" height="60" rx="8" fill="var(--purple-bg)" stroke="var(--purple)"
+                        stroke-width="1.5" />
+                    <text x="85" y="125" text-anchor="middle" fill="var(--purple)" font-size="10" font-weight="700">8.
+                        Roadmap</text>
+                    <text x="85" y="142" text-anchor="middle" fill="var(--text-dim)" font-size="8">Vue long terme</text>
+
+                    <!-- Row 3 -->
+                    <path d="M 10 160 Q -20 190 10 220" fill="none" stroke="var(--accent-light)" stroke-width="1.5"
+                        stroke-dasharray="4,2" />
+
+                    <rect x="10" y="190" width="150" height="60" rx="8" fill="var(--red-bg)" stroke="var(--red)"
+                        stroke-width="1.5" />
+                    <text x="85" y="215" text-anchor="middle" fill="var(--red)" font-size="10" font-weight="700">9.
+                        Rapports</text>
+                    <text x="85" y="232" text-anchor="middle" fill="var(--text-dim)" font-size="8">Dashboard +
+                        Gadgets</text>
+                </svg>
+            </div>
+
+            <div class="callout callout-green fade-in" style="margin-top:1.5rem">
+                🎯 <strong>Jira est l'outil central de la gestion Agile.</strong> Il permet de planifier, suivre et
+                livrer des projets de manière itérative et collaborative.
+            </div>
+        </div>
+    </section>
+
+    <!-- NAV LINKS -->
+    <section style="padding:3rem 0">
+        <div class="container fade-in">
+            <div class="grid-2">
+                <a href="3.%20Approche%20agile_SCRUM.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;gap:1rem;border:1px solid rgba(168,85,247,.3);background:linear-gradient(135deg,var(--card),rgba(168,85,247,.08));cursor:pointer">
+                        <div style="font-size:1.5rem;color:var(--purple)">←</div>
+                        <div>
+                            <span class="section-label label-purple"
+                                style="margin-bottom:.3rem;font-size:.65rem">Chapitre précédent</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">Méthodologie SCRUM</h3>
+                        </div>
+                    </div>
+                </a>
+                <a href="5.%20Approche%20Agile_gestion%20de%20version%20et%20qualité%20du%20code.html"
+                    style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:flex-end;gap:1rem;border:1px solid rgba(249,115,22,.3);background:linear-gradient(135deg,var(--card),rgba(249,115,22,.08));cursor:pointer;text-align:right">
+                        <div>
+                            <span class="section-label label-orange"
+                                style="margin-bottom:.3rem;font-size:.65rem">Chapitre suivant</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">Git & SonarQube</h3>
+                        </div>
+                        <div style="font-size:1.5rem;color:var(--orange)">→</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>📘 Module Approche Agile — Chapitre 4 : Manipuler JIRA | Stagiaire : Youssef NAJIMI | DEVOWFS</p>
+        <p style="margin-top:.5rem"><a href="1.%20Approche%20agile_Introduction.html">← Retour au module principal</a>
+        </p>
+    </footer>
+
+    <script>
+        const obs = new IntersectionObserver(e => { e.forEach(e => { e.isIntersecting && e.target.classList.add('visible') }) }, { threshold: .1 });
+        document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    </script>
+</body>
+
+</html>

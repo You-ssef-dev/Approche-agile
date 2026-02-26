@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PERT & GANTT — Préparer un Projet Agile</title>
+    <meta name="description"
+        content="Chapitre 2 : Diagramme PERT et Diagramme de Gantt — Planification, ordonnancement, chemin critique et marges.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --bg: #0a0e1a;
+            --surface: #111827;
+            --card: #1a2236;
+            --card-hover: #1e2a42;
+            --border: #2a3550;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, .15);
+            --green: #10b981;
+            --green-bg: rgba(16, 185, 129, .1);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, .1);
+            --yellow: #f59e0b;
+            --yellow-bg: rgba(245, 158, 11, .1);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59, 130, 246, .1);
+            --purple: #a855f7;
+            --purple-bg: rgba(168, 85, 247, .1);
+            --cyan: #06b6d4;
+            --cyan-bg: rgba(6, 182, 212, .1);
+            --orange: #f97316;
+            --orange-bg: rgba(249, 115, 22, .1);
+            --radius: 12px;
+            --transition: .3s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden
+        }
+
+        a {
+            color: var(--accent-light);
+            text-decoration: none
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent)
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 14, 26, .85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px
+        }
+
+        .nav-logo {
+            font-weight: 800;
+            font-size: 1.15rem;
+            background: linear-gradient(135deg, var(--accent-light), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            font-size: .85rem;
+            font-weight: 500;
+            transition: color var(--transition)
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-light)
+        }
+
+        .nav-select {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .15), rgba(168, 85, 247, .15));
+            color: var(--accent-light);
+            border: 1px solid rgba(99, 102, 241, .35);
+            border-radius: 8px;
+            padding: .4rem .8rem .4rem .6rem;
+            font-family: 'Inter', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all .3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23818cf8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .6rem center;
+            padding-right: 1.8rem
+        }
+
+        .nav-select:hover {
+            border-color: var(--accent-light);
+            background: linear-gradient(135deg, rgba(99, 102, 241, .25), rgba(168, 85, 247, .25))
+        }
+
+        .nav-select option {
+            background: var(--surface);
+            color: var(--text);
+            padding: .5rem
+        }
+
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            color: var(--text-muted);
+            font-size: .85rem;
+            font-weight: 500;
+            transition: color var(--transition)
+        }
+
+        .nav-back:hover {
+            color: var(--accent-light)
+        }
+
+        .hero {
+            padding: 10rem 2rem 5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: .4rem 1rem;
+            border-radius: 50px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(99, 102, 241, .3);
+            color: var(--accent-light);
+            font-size: .8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 1rem
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent-light), #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 2rem
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem
+        }
+
+        section {
+            padding: 4rem 0
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .35rem .9rem;
+            border-radius: 50px;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 1rem
+        }
+
+        .label-blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+            border: 1px solid rgba(59, 130, 246, .25)
+        }
+
+        .label-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid rgba(16, 185, 129, .25)
+        }
+
+        .label-purple {
+            background: var(--purple-bg);
+            color: var(--purple);
+            border: 1px solid rgba(168, 85, 247, .25)
+        }
+
+        .label-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+            border: 1px solid rgba(245, 158, 11, .25)
+        }
+
+        .label-red {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, .25)
+        }
+
+        .label-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan);
+            border: 1px solid rgba(6, 182, 212, .25)
+        }
+
+        .label-orange {
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid rgba(249, 115, 22, .25)
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: .5rem
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+            max-width: 700px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            transition: all var(--transition)
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, .08)
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: .6rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .card p,
+        .card li {
+            color: var(--text-muted);
+            font-size: .92rem
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0
+        }
+
+        .card ul li {
+            padding: .3rem 0;
+            padding-left: 1.4rem;
+            position: relative
+        }
+
+        .card ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent-light)
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem
+        }
+
+        .icon-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0
+        }
+
+        .ic-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .ic-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .ic-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .ic-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .ic-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .ic-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .ic-orange {
+            background: var(--orange-bg);
+            color: var(--orange)
+        }
+
+        .styled-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border)
+        }
+
+        .styled-table thead {
+            background: linear-gradient(135deg, var(--accent), #7c3aed)
+        }
+
+        .styled-table th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: .9rem;
+            color: #fff;
+            letter-spacing: .5px
+        }
+
+        .styled-table td {
+            padding: .9rem 1.5rem;
+            font-size: .9rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none
+        }
+
+        .styled-table tbody tr {
+            background: var(--card);
+            transition: background var(--transition)
+        }
+
+        .styled-table tbody tr:hover {
+            background: var(--card-hover)
+        }
+
+        .tag {
+            display: inline-block;
+            padding: .25rem .7rem;
+            border-radius: 6px;
+            font-size: .78rem;
+            font-weight: 600
+        }
+
+        .tag-green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .tag-red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .tag-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow)
+        }
+
+        .tag-blue {
+            background: var(--blue-bg);
+            color: var(--blue)
+        }
+
+        .tag-purple {
+            background: var(--purple-bg);
+            color: var(--purple)
+        }
+
+        .tag-cyan {
+            background: var(--cyan-bg);
+            color: var(--cyan)
+        }
+
+        .callout {
+            border-left: 3px solid var(--accent);
+            background: var(--accent-glow);
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            margin: 1.5rem 0;
+            font-size: .92rem
+        }
+
+        .callout-green {
+            border-left-color: var(--green);
+            background: var(--green-bg)
+        }
+
+        .callout-yellow {
+            border-left-color: var(--yellow);
+            background: var(--yellow-bg)
+        }
+
+        .callout-red {
+            border-left-color: var(--red);
+            background: var(--red-bg)
+        }
+
+        .callout-cyan {
+            border-left-color: var(--cyan);
+            background: var(--cyan-bg)
+        }
+
+        .formula-box {
+            background: linear-gradient(135deg, var(--card), var(--card-hover));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            margin: 1.5rem 0
+        }
+
+        .formula {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--accent-light), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: .8rem 0
+        }
+
+        .formula-desc {
+            color: var(--text-muted);
+            font-size: .9rem
+        }
+
+        /* PERT DIAGRAM SVG */
+        .pert-diagram {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin: 2rem 0;
+            overflow-x: auto
+        }
+
+        .pert-diagram svg {
+            display: block;
+            margin: 0 auto
+        }
+
+        /* GANTT CHART */
+        .gantt-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin: 2rem 0;
+            overflow-x: auto
+        }
+
+        .gantt-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: .5rem
+        }
+
+        .gantt-label {
+            width: 180px;
+            min-width: 180px;
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding-right: 1rem
+        }
+
+        .gantt-track {
+            flex: 1;
+            height: 32px;
+            position: relative;
+            background: rgba(255, 255, 255, .03);
+            border-radius: 6px
+        }
+
+        .gantt-bar {
+            position: absolute;
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .75rem;
+            font-weight: 700;
+            color: #fff;
+            transition: all .4s ease
+        }
+
+        .gantt-bar:hover {
+            filter: brightness(1.2);
+            transform: scaleY(1.1)
+        }
+
+        .gantt-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem
+        }
+
+        .gantt-header-label {
+            width: 180px;
+            min-width: 180px
+        }
+
+        .gantt-header-ticks {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            font-size: .7rem;
+            color: var(--text-dim);
+            font-weight: 600
+        }
+
+        /* STEP CARDS */
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            color: #fff;
+            font-size: .8rem;
+            font-weight: 800;
+            flex-shrink: 0
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: .85rem;
+            margin-top: 4rem
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 3rem
+            }
+
+            .section-title {
+                font-size: 1.5rem
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr
+            }
+
+            .gantt-label,
+            .gantt-header-label {
+                width: 100px;
+                min-width: 100px;
+                font-size: .75rem
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .6s ease, transform .6s ease
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-logo">📘 Gestion de Projet</div>
+            <ul class="nav-links">
+                <li><a href="1.%20Approche%20agile_Introduction.html" class="nav-back">← Retour</a></li>
+                <li><a href="#objectif">Objectif</a></li>
+                <li><a href="#pert">PERT</a></li>
+                <li><a href="#dates">Dates</a></li>
+                <li><a href="#chemin">Chemin Critique</a></li>
+                <li><a href="#marges">Marges</a></li>
+                <li><a href="#exemple">Exemple</a></li>
+                <li><a href="#gantt">Gantt</a></li>
+                <li><a href="#comparaison">Comparaison</a></li>
+                <li><a href="3.%20Approche%20agile_SCRUM.html" style="color:var(--accent-light);font-weight:600">Scrum
+                        →</a></li>
+                <li>
+                    <select class="nav-select" onchange="if(this.value)window.location.href=this.value">
+                        <option value="">📚 Chapitres</option>
+                        <option value="1.%20Approche%20agile_Introduction.html">📖 Introduction</option>
+                        <option value="2.%20Approche%20agile_Préparer%20un%20projet.html">📊 PERT & Gantt</option>
+                        <option value="3.%20Approche%20agile_SCRUM.html">🔄 Scrum</option>
+                        <option value="4.%20Approche%20agile_Manipuler%20JIRA.html">🔧 Jira</option>
+                        <option value="5.%20Approche%20Agile_gestion%20de%20version%20et%20qualité%20du%20code.html">🔀
+                            Git & SonarQube</option>
+                        <option value="6.%20Approche%20Agile_tests%20unitaires%20et%20couverture%20de%20code.html">🧪
+                            Tests Unitaires</option>
+                        <option value="7.%20Approche%20agile_DevOps.html">🔄 DevOps & CI/CD</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="hero-badge">📌 Chapitre 2 — Module Approche Agile</div>
+        <h1>Diagramme <span>PERT</span> & <span>GANTT</span></h1>
+        <p>Maîtrisez la planification de projet : ordonnancement des tâches, chemin critique, calcul des marges et
+            visualisation chronologique.</p>
+        <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1rem">
+            <span class="tag tag-blue">⏱ Planification</span>
+            <span class="tag tag-green">🔗 Dépendances</span>
+            <span class="tag tag-purple">📊 Ordonnancement</span>
+            <span class="tag tag-yellow">📐 Chemin Critique</span>
+        </div>
+    </header>
+
+    <!-- 1. OBJECTIF DU CHAPITRE -->
+    <section id="objectif">
+        <div class="container fade-in">
+            <span class="section-label label-blue">📌 Section 1</span>
+            <h2 class="section-title">🎯 Objectif du Chapitre</h2>
+            <p class="section-desc">Ce chapitre vise à apprendre les fondamentaux de la planification structurée d'un
+                projet.</p>
+            <div class="grid-4">
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-blue" style="margin:0 auto .8rem">✂️</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Découpage en tâches</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-green" style="margin:0 auto .8rem">⏱</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Estimation durées</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-purple" style="margin:0 auto .8rem">🔀</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Ordonnancement</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-yellow" style="margin:0 auto .8rem">📐</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Chemin critique</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-cyan" style="margin:0 auto .8rem">📅</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Échéancier</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-orange" style="margin:0 auto .8rem">👥</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Ressources</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-red" style="margin:0 auto .8rem">💰</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Maîtrise coûts</h3>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-green" style="margin:0 auto .8rem">✅</div>
+                    <h3 style="justify-content:center;font-size:.95rem">Points validation</h3>
+                </div>
+            </div>
+            <div class="callout fade-in" style="margin-top:1.5rem">👉 Ce chapitre est orienté <strong>planification de
+                    projet</strong> — une base essentielle avant de comprendre l'approche Agile.</div>
+        </div>
+    </section>
+
+    <!-- 2. DIAGRAMME PERT -->
+    <section id="pert">
+        <div class="container fade-in">
+            <span class="section-label label-green">📌 Section 2</span>
+            <h2 class="section-title">📊 Diagramme PERT</h2>
+            <p class="section-desc">Program Evaluation and Review Technique — Visualiser les dépendances et optimiser
+                l'ordonnancement.</p>
+
+            <div class="card" style="margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-green">📖</span> Définition</h3>
+                <p>La méthode PERT permet de <strong>visualiser la dépendance des tâches</strong> et de procéder à leur
+                    <strong>ordonnancement</strong> en utilisant un <strong>graphe de dépendances</strong>. C'est un
+                    outil de planification réseau.
+                </p>
+            </div>
+
+            <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;color:var(--green)">✔ Ce que permet le PERT
+            </h3>
+            <div class="grid-3">
+                <div class="card">
+                    <h3><span class="step-number">1</span> Antériorités</h3>
+                    <p>Prise en compte des différentes tâches et des antériorités à respecter entre elles.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">2</span> Durée globale</h3>
+                    <p>Détermination de la durée globale du projet et des tâches qui la conditionnent.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">3</span> Marges</h3>
+                    <p>Détermination des tâches pour lesquelles du temps est disponible (notion de marge).</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">4</span> Dates limites</h3>
+                    <p>Détermination des dates « au plus tôt » et « au plus tard » pour lancer chaque tâche.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">5</span> Planning</h3>
+                    <p>Établissement d'un planning d'exécution et d'enchaînement des tâches.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="step-number">6</span> Ressources</h3>
+                    <p>Gestion des moyens logistiques (matériels) et humains intervenant sur le projet.</p>
+                </div>
+            </div>
+
+            <div class="callout callout-green fade-in" style="margin-top:1.5rem">
+                💡 <strong>But principal :</strong> Trouver la meilleure organisation pour terminer le projet dans les
+                meilleurs délais et identifier les <strong>tâches critiques</strong> — celles qui ne doivent souffrir
+                aucun retard.
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. DATES AU PLUS TÔT / AU PLUS TARD -->
+    <section id="dates">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 3</span>
+            <h2 class="section-title">📅 Dates au Plus Tôt / au Plus Tard</h2>
+            <p class="section-desc">Les deux calculs fondamentaux de la méthode PERT.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3><span class="icon-circle ic-blue">➡️</span> Date au plus tôt</h3>
+                    <p style="margin-bottom:.8rem">Se calcule à partir de l'<strong>étape initiale</strong> par
+                        <strong>additions successives</strong> des durées des tâches.
+                    </p>
+                    <div class="callout" style="margin:0">
+                        📌 <strong>Signification :</strong> Quand peut-on commencer cette tâche au minimum ?
+                    </div>
+                    <p style="margin-top:.8rem"><span class="tag tag-blue">Calcul en avançant →</span></p>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-purple">⬅️</span> Date au plus tard</h3>
+                    <p style="margin-bottom:.8rem">Se calcule à partir de l'<strong>étape finale</strong> en
+                        <strong>retranchant successivement</strong> les durées des tâches.
+                    </p>
+                    <div class="callout" style="margin:0;border-left-color:var(--purple);background:var(--purple-bg)">
+                        📌 <strong>Signification :</strong> Quand doit-on commencer cette tâche au maximum sans retarder
+                        le projet ?
+                    </div>
+                    <p style="margin-top:.8rem"><span class="tag tag-purple">← Calcul en reculant</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. CHEMIN CRITIQUE -->
+    <section id="chemin">
+        <div class="container fade-in">
+            <span class="section-label label-red">📌 Section 4</span>
+            <h2 class="section-title">🔴 Le Chemin Critique</h2>
+            <p class="section-desc">La séquence de tâches qui détermine la durée totale du projet.</p>
+
+            <div class="card" style="border-left:3px solid var(--red)">
+                <h3><span class="icon-circle ic-red">⚡</span> Définition</h3>
+                <ul>
+                    <li>Le chemin critique est la <strong>séquence de tâches</strong> qui détermine la <strong>durée
+                            totale</strong> du projet</li>
+                    <li>Ce chemin est <strong>continu</strong> depuis le début jusqu'à la fin du projet</li>
+                    <li>Tout retard affectant une tâche du chemin critique est <strong>intégralement répercuté</strong>
+                        sur la durée du projet</li>
+                    <li>Les tâches critiques ont une <strong>marge nulle</strong></li>
+                </ul>
+            </div>
+
+            <div class="callout callout-red fade-in" style="margin-top:1.5rem">
+                ⚠️ <strong>Attention :</strong> Si une tâche du chemin critique est retardée → <strong>le projet entier
+                    est retardé !</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. LES MARGES -->
+    <section id="marges">
+        <div class="container fade-in">
+            <span class="section-label label-yellow">📌 Section 5</span>
+            <h2 class="section-title">📐 Les Marges</h2>
+            <p class="section-desc">La possibilité qu'a une tâche d'être retardée sans impacter le projet.</p>
+
+            <div class="card" style="margin-bottom:1.5rem">
+                <h3><span class="icon-circle ic-yellow">💡</span> Principe</h3>
+                <p>La marge est la possibilité qu'a une tâche d'être retardée sans impacter le projet. Les tâches qui
+                    sont sur le <strong>chemin critique ont une marge nulle</strong>.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="formula-box">
+                    <h3 style="font-size:1rem;font-weight:700;color:var(--accent-light)">📌 Marge Totale (Mt)</h3>
+                    <div class="formula">Mt = Z' − ( x + Y )</div>
+                    <p class="formula-desc">Retard maximum possible d'une tâche <strong>sans retarder la fin du
+                            projet</strong>.</p>
+                    <p class="formula-desc" style="margin-top:.5rem;font-size:.82rem">Implique : tâches antérieures au
+                        plus tôt, tâches restantes au plus tard.</p>
+                </div>
+                <div class="formula-box">
+                    <h3 style="font-size:1rem;font-weight:700;color:var(--green)">📌 Marge Libre (Ml)</h3>
+                    <div class="formula"
+                        style="background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text">
+                        Ml = Y' − ( x + Y )</div>
+                    <p class="formula-desc">Retard maximum possible <strong>sans retarder la tâche suivante</strong>.
+                    </p>
+                    <p class="formula-desc" style="margin-top:.5rem;font-size:.82rem">Très utile pour l'ordonnancement
+                        d'un projet.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. EXEMPLE PERT COMPLET -->
+    <section id="exemple">
+        <div class="container fade-in">
+            <span class="section-label label-cyan">📌 Section 6</span>
+            <h2 class="section-title">🍽️ Exemple PERT — Préparer un Repas</h2>
+            <p class="section-desc">Application concrète avec 8 tâches de cuisine.</p>
+
+            <!-- Tableau des tâches -->
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Tâche</th>
+                        <th>Description</th>
+                        <th>Prédécesseur</th>
+                        <th>Durée (min)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>A</strong></td>
+                        <td>Préparer le menu</td>
+                        <td>—</td>
+                        <td>30</td>
+                    </tr>
+                    <tr>
+                        <td><strong>B</strong></td>
+                        <td>Acheter les ingrédients</td>
+                        <td>A</td>
+                        <td>90</td>
+                    </tr>
+                    <tr>
+                        <td><strong>C</strong></td>
+                        <td>Préparer l'apéritif</td>
+                        <td>B, A</td>
+                        <td>30</td>
+                    </tr>
+                    <tr>
+                        <td><strong>D</strong></td>
+                        <td>Nettoyer la table</td>
+                        <td>A</td>
+                        <td>10</td>
+                    </tr>
+                    <tr>
+                        <td><strong>E</strong></td>
+                        <td>Mettre la table</td>
+                        <td>D</td>
+                        <td>10</td>
+                    </tr>
+                    <tr>
+                        <td><strong>F</strong></td>
+                        <td>Préparer les ingrédients</td>
+                        <td>B</td>
+                        <td>30</td>
+                    </tr>
+                    <tr>
+                        <td><strong>G</strong></td>
+                        <td>Cuisiner les plats</td>
+                        <td>F</td>
+                        <td>60</td>
+                    </tr>
+                    <tr>
+                        <td><strong>H</strong></td>
+                        <td>Servir le repas</td>
+                        <td>G, C, E</td>
+                        <td>10</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- PERT Diagram SVG -->
+            <div class="pert-diagram fade-in">
+                <h3 style="text-align:center;margin-bottom:1.5rem;font-size:1.1rem">📊 Graphe PERT</h3>
+                <svg width="900" height="320" viewBox="0 0 900 320" style="min-width:800px">
+                    <!-- Arrows -->
+                    <defs>
+                        <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#818cf8" />
+                        </marker>
+                        <marker id="arrRed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+                        </marker>
+                    </defs>
+                    <!-- Nodes -->
+                    <circle cx="60" cy="160" r="30" fill="#1a2236" stroke="#818cf8" stroke-width="2" />
+                    <text x="60" y="155" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">1</text>
+                    <text x="60" y="170" text-anchor="middle" fill="#94a3b8" font-size="9">0 | 0</text>
+
+                    <circle cx="220" cy="160" r="30" fill="#1a2236" stroke="#818cf8" stroke-width="2" />
+                    <text x="220" y="155" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">2</text>
+                    <text x="220" y="170" text-anchor="middle" fill="#94a3b8" font-size="9">30 | 30</text>
+
+                    <circle cx="420" cy="100" r="30" fill="#1a2236" stroke="#818cf8" stroke-width="2" />
+                    <text x="420" y="95" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">3</text>
+                    <text x="420" y="110" text-anchor="middle" fill="#94a3b8" font-size="9">120 | 120</text>
+
+                    <circle cx="420" cy="260" r="30" fill="#1a2236" stroke="#64748b" stroke-width="2" />
+                    <text x="420" y="255" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">4</text>
+                    <text x="420" y="270" text-anchor="middle" fill="#94a3b8" font-size="9">40 | 190</text>
+
+                    <circle cx="600" cy="60" r="30" fill="#1a2236" stroke="#818cf8" stroke-width="2" />
+                    <text x="600" y="55" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">5</text>
+                    <text x="600" y="70" text-anchor="middle" fill="#94a3b8" font-size="9">150 | 150</text>
+
+                    <circle cx="600" cy="180" r="30" fill="#1a2236" stroke="#64748b" stroke-width="2" />
+                    <text x="600" y="175" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">6</text>
+                    <text x="600" y="190" text-anchor="middle" fill="#94a3b8" font-size="9">150 | 180</text>
+
+                    <circle cx="600" cy="280" r="30" fill="#1a2236" stroke="#64748b" stroke-width="2" />
+                    <text x="600" y="275" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">7</text>
+                    <text x="600" y="290" text-anchor="middle" fill="#94a3b8" font-size="9">50 | 200</text>
+
+                    <circle cx="760" cy="160" r="30" fill="#1a2236" stroke="#818cf8" stroke-width="2" />
+                    <text x="760" y="155" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">8</text>
+                    <text x="760" y="170" text-anchor="middle" fill="#94a3b8" font-size="9">210 | 210</text>
+
+                    <circle cx="860" cy="160" r="30" fill="#1a2236" stroke="#818cf8" stroke-width="2" />
+                    <text x="860" y="155" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">9</text>
+                    <text x="860" y="170" text-anchor="middle" fill="#94a3b8" font-size="9">220 | 220</text>
+
+                    <!-- Critical path edges (red) -->
+                    <line x1="90" y1="160" x2="190" y2="160" stroke="#ef4444" stroke-width="2.5"
+                        marker-end="url(#arrRed)" />
+                    <text x="140" y="150" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">A
+                        (30)</text>
+
+                    <line x1="250" y1="145" x2="390" y2="105" stroke="#ef4444" stroke-width="2.5"
+                        marker-end="url(#arrRed)" />
+                    <text x="310" y="110" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">B
+                        (90)</text>
+
+                    <line x1="450" y1="90" x2="570" y2="65" stroke="#ef4444" stroke-width="2.5"
+                        marker-end="url(#arrRed)" />
+                    <text x="500" y="65" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">F
+                        (30)</text>
+
+                    <line x1="630" y1="70" x2="735" y2="147" stroke="#ef4444" stroke-width="2.5"
+                        marker-end="url(#arrRed)" />
+                    <text x="690" y="95" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">G
+                        (60)</text>
+
+                    <line x1="790" y1="160" x2="830" y2="160" stroke="#ef4444" stroke-width="2.5"
+                        marker-end="url(#arrRed)" />
+                    <text x="810" y="150" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700">H
+                        (10)</text>
+
+                    <!-- Non-critical edges -->
+                    <line x1="450" y1="110" x2="570" y2="170" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"
+                        stroke-dasharray="5,3" />
+                    <text x="520" y="148" text-anchor="middle" fill="#94a3b8" font-size="10">C (30)</text>
+
+                    <line x1="250" y1="175" x2="390" y2="255" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"
+                        stroke-dasharray="5,3" />
+                    <text x="310" y="230" text-anchor="middle" fill="#94a3b8" font-size="10">D (10)</text>
+
+                    <line x1="450" y1="260" x2="570" y2="280" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"
+                        stroke-dasharray="5,3" />
+                    <text x="510" y="280" text-anchor="middle" fill="#94a3b8" font-size="10">E (10)</text>
+
+                    <line x1="620" y1="175" x2="735" y2="162" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"
+                        stroke-dasharray="5,3" />
+                    <line x1="620" y1="270" x2="735" y2="170" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"
+                        stroke-dasharray="5,3" />
+                </svg>
+                <div style="display:flex;gap:1.5rem;justify-content:center;margin-top:1rem;flex-wrap:wrap">
+                    <span style="display:flex;align-items:center;gap:.4rem;font-size:.82rem"><span
+                            style="width:30px;height:3px;background:#ef4444;border-radius:2px;display:inline-block"></span>
+                        Chemin critique</span>
+                    <span style="display:flex;align-items:center;gap:.4rem;font-size:.82rem"><span
+                            style="width:30px;height:2px;background:#64748b;border-radius:2px;display:inline-block;border-top:2px dashed #64748b"></span>
+                        Tâches non-critiques</span>
+                    <span style="font-size:.82rem;color:var(--text-muted)">Format nœud : <strong>au plus tôt | au plus
+                            tard</strong></span>
+                </div>
+            </div>
+
+            <div class="grid-2 fade-in">
+                <div class="card" style="border-left:3px solid var(--red)">
+                    <h3><span class="icon-circle ic-red">🔴</span> Chemin Critique</h3>
+                    <p style="font-size:1.05rem;font-weight:700;margin:.5rem 0">A → B → F → G → H</p>
+                    <p>Durée totale = <strong style="color:var(--red)">220 minutes</strong></p>
+                </div>
+                <div class="card" style="border-left:3px solid var(--green)">
+                    <h3><span class="icon-circle ic-green">🟢</span> Tâches avec marge</h3>
+                    <p>Les tâches <strong>C, D, E</strong> disposent de marges et peuvent être retardées sans impacter
+                        le projet.</p>
+                </div>
+            </div>
+
+            <!-- Questions -->
+            <div class="callout callout-yellow fade-in" style="margin-top:1.5rem">
+                <strong>❓ Questions de l'exercice :</strong><br>
+                1. Calculer la <strong>marge totale</strong> de la tâche C<br>
+                2. Calculer la <strong>marge libre</strong> de la tâche E
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. DIAGRAMME DE GANTT -->
+    <section id="gantt">
+        <div class="container fade-in">
+            <span class="section-label label-orange">📌 Section 7</span>
+            <h2 class="section-title">📊 Diagramme de Gantt</h2>
+            <p class="section-desc">Chronogramme plaçant les tâches sur un axe temporel — complément visuel du PERT.</p>
+
+            <div class="grid-2" style="margin-bottom:2rem">
+                <div class="card">
+                    <h3><span class="icon-circle ic-green">✅</span> Avantages</h3>
+                    <ul>
+                        <li>Très <strong>facile à lire</strong></li>
+                        <li>Vision <strong>calendrier</strong> claire</li>
+                        <li>Chaque tâche = barre proportionnelle à sa durée</li>
+                        <li>Axe horizontal = temps, axe vertical = tâches</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3><span class="icon-circle ic-red">❌</span> Inconvénients</h3>
+                    <ul>
+                        <li>Ne montre <strong>pas les dépendances</strong></li>
+                        <li>Pas de vue sur les relations d'antériorité</li>
+                        <li>Généralement utilisé <strong>en complément</strong> du PERT/MPM</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Gantt Chart Visual -->
+            <div class="gantt-container fade-in">
+                <h3 style="text-align:center;margin-bottom:1.5rem;font-size:1.1rem">📊 Diagramme de Gantt — Exemple
+                    Repas</h3>
+                <div class="gantt-header">
+                    <div class="gantt-header-label"></div>
+                    <div class="gantt-header-ticks">
+                        <span>0</span><span>30</span><span>60</span><span>90</span><span>120</span><span>150</span><span>180</span><span>210</span><span>220</span>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">A — Menu</div>
+                    <div class="gantt-track">
+                        <div class="gantt-bar"
+                            style="left:0;width:13.6%;background:linear-gradient(135deg,#ef4444,#f87171)">30</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">B — Achats</div>
+                    <div class="gantt-track">
+                        <div class="gantt-bar"
+                            style="left:13.6%;width:40.9%;background:linear-gradient(135deg,#ef4444,#f87171)">90</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">C — Apéritif</div>
+                    <div class="gantt-track">
+                        <div class="gantt-bar"
+                            style="left:54.5%;width:13.6%;background:linear-gradient(135deg,#3b82f6,#60a5fa)">30</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">D — Nettoyage</div>
+                    <div class="gantt-track">
+                        <div class="gantt-bar"
+                            style="left:13.6%;width:4.5%;background:linear-gradient(135deg,#a855f7,#c084fc)">10</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">E — Table</div>
+                    <div class="gantt-track">
+                        <div class="gantt-bar"
+                            style="left:18.2%;width:4.5%;background:linear-gradient(135deg,#a855f7,#c084fc)">10</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">F — Ingrédients</div>
+                    <div class="gantt-track">
+                        <div class="gantt-bar"
+                            style="left:54.5%;width:13.6%;background:linear-gradient(135deg,#ef4444,#f87171)">30</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">G — Cuisiner</div>
+                    <div class="gantt-track">
+                        <div class="gantt-bar"
+                            style="left:68.2%;width:27.3%;background:linear-gradient(135deg,#ef4444,#f87171)">60</div>
+                    </div>
+                </div>
+                <div class="gantt-row">
+                    <div class="gantt-label">H — Servir</div>
+                    <div class="gantt-track">
+                        <div class="gantt-bar"
+                            style="left:95.5%;width:4.5%;background:linear-gradient(135deg,#ef4444,#f87171)">10</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1.5rem;justify-content:center;margin-top:1.2rem;flex-wrap:wrap">
+                    <span style="display:flex;align-items:center;gap:.4rem;font-size:.82rem"><span
+                            style="width:14px;height:14px;background:linear-gradient(135deg,#ef4444,#f87171);border-radius:3px;display:inline-block"></span>
+                        Chemin critique</span>
+                    <span style="display:flex;align-items:center;gap:.4rem;font-size:.82rem"><span
+                            style="width:14px;height:14px;background:linear-gradient(135deg,#3b82f6,#60a5fa);border-radius:3px;display:inline-block"></span>
+                        Tâche avec marge</span>
+                    <span style="display:flex;align-items:center;gap:.4rem;font-size:.82rem"><span
+                            style="width:14px;height:14px;background:linear-gradient(135deg,#a855f7,#c084fc);border-radius:3px;display:inline-block"></span>
+                        Tâche non-critique</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. COMPARAISON PERT vs GANTT -->
+    <section id="comparaison">
+        <div class="container fade-in">
+            <span class="section-label label-purple">📌 Section 8</span>
+            <h2 class="section-title">⚖️ Comparaison PERT vs GANTT</h2>
+            <p class="section-desc">Deux outils complémentaires pour la planification de projet.</p>
+
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>PERT</th>
+                        <th>GANTT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Montre les dépendances</strong></td>
+                        <td><span class="tag tag-green">✅ Oui</span></td>
+                        <td><span class="tag tag-red">❌ Non</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Facilité de lecture</strong></td>
+                        <td><span class="tag tag-yellow">⚠ Modéré</span></td>
+                        <td><span class="tag tag-green">✅ Très facile</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chemin critique</strong></td>
+                        <td><span class="tag tag-green">✅ Oui</span></td>
+                        <td><span class="tag tag-red">❌ Pas directement</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vision temporelle</strong></td>
+                        <td><span class="tag tag-yellow">⚠ Indirect</span></td>
+                        <td><span class="tag tag-green">✅ Direct</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Calcul des marges</strong></td>
+                        <td><span class="tag tag-green">✅ Oui</span></td>
+                        <td><span class="tag tag-red">❌ Non</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Meilleur usage</strong></td>
+                        <td><span class="tag tag-blue">Planification & Optimisation</span></td>
+                        <td><span class="tag tag-purple">Communication & Suivi</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout callout-green fade-in" style="margin-top:1.5rem">
+                💡 <strong>PERT + Gantt = Combinaison idéale.</strong> Le PERT sert à l'analyse (marges, chemin
+                critique), le Gantt sert à la communication visuelle du planning.
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. LIEN AVEC AGILE -->
+    <section id="agile">
+        <div class="container fade-in">
+            <span class="section-label label-yellow">📌 Section 9</span>
+            <h2 class="section-title">🔄 Lien avec l'Approche Agile</h2>
+            <p class="section-desc">Ce chapitre enseigne des pratiques classiques — voici la perspective Agile.</p>
+
+            <div class="grid-2">
+                <div class="card" style="border-left:3px solid var(--blue)">
+                    <h3><span class="icon-circle ic-blue">🔵</span> Approche Classique (ce chapitre)</h3>
+                    <ul>
+                        <li>Planification détaillée complète</li>
+                        <li>Chemin critique & ordonnancement strict</li>
+                        <li>Estimation précise des durées</li>
+                        <li>Typique du <strong>Cycle en V</strong></li>
+                        <li>Gestion <strong>prédictive</strong></li>
+                    </ul>
+                </div>
+                <div class="card" style="border-left:3px solid var(--green)">
+                    <h3><span class="icon-circle ic-green">🟢</span> Approche Agile Moderne</h3>
+                    <ul>
+                        <li>Planification <strong>par sprint</strong></li>
+                        <li>Évite les planifications trop longues</li>
+                        <li>Estimation <strong>relative</strong> (story points)</li>
+                        <li>Adaptation continue</li>
+                        <li>Collaboration & feedback rapide</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout callout-yellow fade-in" style="margin-top:1.5rem">
+                👉 <strong>Comprendre PERT & Gantt est essentiel</strong> pour saisir la différence fondamentale avec
+                l'Agile et pourquoi les méthodes itératives ont émergé.
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. CONCLUSION -->
+    <section id="conclusion">
+        <div class="container fade-in">
+            <span class="section-label label-green">📌 Conclusion</span>
+            <h2 class="section-title">🎯 Ce qu'il faut retenir</h2>
+            <div class="grid-3">
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-blue"
+                        style="margin:0 auto .8rem;width:50px;height:50px;font-size:1.5rem">📊</div>
+                    <h3 style="justify-content:center">PERT</h3>
+                    <p>Graphe de dépendances pour optimiser l'ordonnancement et identifier les tâches critiques.</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-green"
+                        style="margin:0 auto .8rem;width:50px;height:50px;font-size:1.5rem">📐</div>
+                    <h3 style="justify-content:center">Marges</h3>
+                    <p>Marge totale (fin projet) et marge libre (tâche suivante) pour mesurer la flexibilité.</p>
+                </div>
+                <div class="card" style="text-align:center">
+                    <div class="icon-circle ic-purple"
+                        style="margin:0 auto .8rem;width:50px;height:50px;font-size:1.5rem">📅</div>
+                    <h3 style="justify-content:center">Gantt</h3>
+                    <p>Chronogramme visuel des tâches — complément du PERT pour la communication.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEXT CHAPTER -->
+    <section style="padding:3rem 0">
+        <div class="container fade-in">
+            <div class="grid-2">
+                <a href="1.%20Approche%20agile_Introduction.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;gap:1rem;border:1px solid rgba(16,185,129,.3);background:linear-gradient(135deg,var(--card),rgba(16,185,129,.08));cursor:pointer">
+                        <div style="font-size:1.5rem;color:var(--green)">←</div>
+                        <div>
+                            <span class="section-label label-green" style="margin-bottom:.3rem;font-size:.65rem">Module
+                                principal</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">Gestion de Projet Agile</h3>
+                        </div>
+                    </div>
+                </a>
+                <a href="3.%20Approche%20agile_SCRUM.html" style="text-decoration:none;display:block">
+                    <div class="card"
+                        style="display:flex;align-items:center;justify-content:flex-end;gap:1rem;border:1px solid rgba(168,85,247,.3);background:linear-gradient(135deg,var(--card),rgba(168,85,247,.08));cursor:pointer;text-align:right">
+                        <div>
+                            <span class="section-label label-purple"
+                                style="margin-bottom:.3rem;font-size:.65rem">Chapitre suivant</span>
+                            <h3 style="font-size:1rem;font-weight:700;margin:0">Méthodologie SCRUM</h3>
+                        </div>
+                        <div style="font-size:1.5rem;color:var(--purple)">→</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>📘 Module Approche Agile — Chapitre 2 : Préparer le Projet | Stagiaire : Youssef NAJIMI | DEVOWFS</p>
+        <p style="margin-top:.5rem"><a href="1.%20Approche%20agile_Introduction.html">← Retour au module principal</a>
+        </p>
+    </footer>
+
+    <script>
+        const obs = new IntersectionObserver(e => { e.forEach(e => { e.isIntersecting && e.target.classList.add('visible') }) }, { threshold: .1 });
+        document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+    </script>
+</body>
+
+</html>
