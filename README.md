@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=28&duration=3000&pause=800&color=FFFFFF&center=true&vCenter=true&width=750&lines=📘+EFM+-+Approche+Agile;⚡+Scrum+%7C+XP+%7C+Kanban;📋+Product+Backlog+%26+User+Stories;🚀+Agile+Mindset" />
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=28&duration=3000&pause=800&color=F8FAFC&center=true&vCenter=true&width=750&lines=📘+EFM+-+Approche+Agile;⚡+Scrum+%7C+XP+%7C+Kanban;📋+Product+Backlog+%26+User+Stories;🚀+Agile+Mindset" />
 </p>
 
 <p align="center">
